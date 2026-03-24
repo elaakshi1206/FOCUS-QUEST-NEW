@@ -2,7 +2,7 @@
 
 ## Overview
 
-pnpm workspace monorepo using TypeScript. Each package manages its own dependencies.
+pnpm workspace monorepo using TypeScript. Contains the **FocusQuest** gamified micro-learning SPA and an Express API server.
 
 ## Stack
 
@@ -10,87 +10,66 @@ pnpm workspace monorepo using TypeScript. Each package manages its own dependenc
 - **Node.js version**: 24
 - **Package manager**: pnpm
 - **TypeScript version**: 5.9
-- **API framework**: Express 5
-- **Database**: PostgreSQL + Drizzle ORM
-- **Validation**: Zod (`zod/v4`), `drizzle-zod`
-- **API codegen**: Orval (from OpenAPI spec)
-- **Build**: esbuild (CJS bundle)
+- **Frontend**: React + Vite + Tailwind CSS + shadcn/ui
+- **Animations**: Framer Motion + canvas-confetti
+- **Charts**: Recharts
+- **State**: React Context + localStorage (client-side only, no backend)
+- **API framework**: Express 5 (api-server, unused by FocusQuest)
 
-## Structure
+## FocusQuest App (`artifacts/focusquest`)
 
-```text
-artifacts-monorepo/
-├── artifacts/              # Deployable applications
-│   └── api-server/         # Express API server
-├── lib/                    # Shared libraries
-│   ├── api-spec/           # OpenAPI spec + Orval codegen config
-│   ├── api-client-react/   # Generated React Query hooks
-│   ├── api-zod/            # Generated Zod schemas from OpenAPI
-│   └── db/                 # Drizzle ORM schema + DB connection
-├── scripts/                # Utility scripts (single workspace package)
-│   └── src/                # Individual .ts scripts, run via `pnpm --filter @workspace/scripts run <script>`
-├── pnpm-workspace.yaml     # pnpm workspace (artifacts/*, lib/*, lib/integrations/*, scripts)
-├── tsconfig.base.json      # Shared TS options (composite, bundler resolution, es2022)
-├── tsconfig.json           # Root TS project references
-└── package.json            # Root package with hoisted devDeps
-```
+Gamified micro-learning adventure SPA for grades 1-10.
 
-## TypeScript & Composite Projects
+### Features
+- **Three visual themes**: Ocean Pirate (grades 1-4), Space Explorer (grades 5-7), Futuristic Mind Lab (grades 8-10)
+- **14 unlockable pirate character avatars** (real JPEG images in `public/characters/`)
+- **XP/leveling system** — earn XP by completing quests
+- **Educational quests** with Video → Notes → Quiz flow
+- **Animated mascots** (🦜 Captain Beak / 🤖 AstroBot / 🧠 Cortex.AI)
+- **Analytics dashboard** with Recharts line/pie charts
+- **World map** with subject islands, connecting paths, floating decorations
+- **5 subjects**: Mathematics, Science, English, Social Studies, Logical Thinking
+- **14 quests** across all subjects with multi-choice quiz questions + hints
 
-Every package extends `tsconfig.base.json` which sets `composite: true`. The root `tsconfig.json` lists all packages as project references. This means:
+### Architecture
+- All state in `src/lib/store.tsx` (React Context + localStorage)
+- Educational content in `src/lib/data.ts` (QUESTS, SUBJECTS, CHARACTERS)
+- Pages: Landing, Setup (3-step onboarding), Map, QuestList, QuestView, Results, Rewards, Customize, Analytics
+- Components: AnimatedBackground, TopHUD, Mascot, ThemeWrapper
+- CSS animations: waves, bubbles, stars, cyber-grid, scan-line, data-particles, shimmer, map-node-pulse
 
-- **Always typecheck from the root** — run `pnpm run typecheck` (which runs `tsc --build --emitDeclarationOnly`). This builds the full dependency graph so that cross-package imports resolve correctly. Running `tsc` inside a single package will fail if its dependencies haven't been built yet.
-- **`emitDeclarationOnly`** — we only emit `.d.ts` files during typecheck; actual JS bundling is handled by esbuild/tsx/vite...etc, not `tsc`.
-- **Project references** — when package A depends on package B, A's `tsconfig.json` must list B in its `references` array. `tsc --build` uses this to determine build order and skip up-to-date packages.
+### Character image paths
+Pattern: `public/characters/WhatsApp_Image_2026-03-24_at_14.08.XX_TIMESTAMP.jpeg`
+In code: `${import.meta.env.BASE_URL}${char.imagePath.replace(/^\//, '')}`
 
-## Root Scripts
-
-- `pnpm run build` — runs `typecheck` first, then recursively runs `build` in all packages that define it
-- `pnpm run typecheck` — runs `tsc --build --emitDeclarationOnly` using project references
+### Theme system
+- `ocean` (default) = grades 1-4 = blue/cyan palette
+- `space` = grades 5-7 = indigo/purple/dark
+- `future` = grades 8-10 = cyan/dark/cyber
 
 ## Packages
 
 ### `artifacts/api-server` (`@workspace/api-server`)
+Express 5 API server (not used by FocusQuest). Routes at `/api`.
 
-Express 5 API server. Routes live in `src/routes/` and use `@workspace/api-zod` for request and response validation and `@workspace/db` for persistence.
-
-- Entry: `src/index.ts` — reads `PORT`, starts Express
-- App setup: `src/app.ts` — mounts CORS, JSON/urlencoded parsing, routes at `/api`
-- Routes: `src/routes/index.ts` mounts sub-routers; `src/routes/health.ts` exposes `GET /health` (full path: `/api/health`)
-- Depends on: `@workspace/db`, `@workspace/api-zod`
-- `pnpm --filter @workspace/api-server run dev` — run the dev server
-- `pnpm --filter @workspace/api-server run build` — production esbuild bundle (`dist/index.cjs`)
-- Build bundles an allowlist of deps (express, cors, pg, drizzle-orm, zod, etc.) and externalizes the rest
+### `artifacts/focusquest` (`@workspace/focusquest`)
+Main app. `pnpm --filter @workspace/focusquest run dev`
 
 ### `lib/db` (`@workspace/db`)
+Drizzle ORM + PostgreSQL (used by api-server only).
 
-Database layer using Drizzle ORM with PostgreSQL. Exports a Drizzle client instance and schema models.
+## Structure
 
-- `src/index.ts` — creates a `Pool` + Drizzle instance, exports schema
-- `src/schema/index.ts` — barrel re-export of all models
-- `src/schema/<modelname>.ts` — table definitions with `drizzle-zod` insert schemas (no models definitions exist right now)
-- `drizzle.config.ts` — Drizzle Kit config (requires `DATABASE_URL`, automatically provided by Replit)
-- Exports: `.` (pool, db, schema), `./schema` (schema only)
-
-Production migrations are handled by Replit when publishing. In development, we just use `pnpm --filter @workspace/db run push`, and we fallback to `pnpm --filter @workspace/db run push-force`.
-
-### `lib/api-spec` (`@workspace/api-spec`)
-
-Owns the OpenAPI 3.1 spec (`openapi.yaml`) and the Orval config (`orval.config.ts`). Running codegen produces output into two sibling packages:
-
-1. `lib/api-client-react/src/generated/` — React Query hooks + fetch client
-2. `lib/api-zod/src/generated/` — Zod schemas
-
-Run codegen: `pnpm --filter @workspace/api-spec run codegen`
-
-### `lib/api-zod` (`@workspace/api-zod`)
-
-Generated Zod schemas from the OpenAPI spec (e.g. `HealthCheckResponse`). Used by `api-server` for response validation.
-
-### `lib/api-client-react` (`@workspace/api-client-react`)
-
-Generated React Query hooks and fetch client from the OpenAPI spec (e.g. `useHealthCheck`, `healthCheck`).
-
-### `scripts` (`@workspace/scripts`)
-
-Utility scripts package. Each script is a `.ts` file in `src/` with a corresponding npm script in `package.json`. Run scripts via `pnpm --filter @workspace/scripts run <script>`. Scripts can import any workspace package (e.g., `@workspace/db`) by adding it as a dependency in `scripts/package.json`.
+```text
+artifacts/
+├── api-server/         # Express API server
+└── focusquest/         # FocusQuest React+Vite SPA
+    ├── public/
+    │   └── characters/ # 14 pirate character JPEGs
+    └── src/
+        ├── lib/
+        │   ├── store.tsx   # Game state (Context + localStorage)
+        │   └── data.ts     # QUESTS, SUBJECTS, CHARACTERS data
+        ├── pages/          # Landing, Setup, Map, QuestList, QuestView, Results, Rewards, Customize, Analytics
+        └── components/     # AnimatedBackground, TopHUD, Mascot, ThemeWrapper
+```

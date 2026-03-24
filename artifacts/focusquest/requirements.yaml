@@ -1,0 +1,22 @@
+packages:
+  "framer-motion": "For page transitions, character animations, and gamified UI interactions"
+  "recharts": "For the gamified analytics dashboard charts"
+  "canvas-confetti": "For celebration particle effects on quest completion and level ups"
+  "@types/canvas-confetti": "TypeScript definitions for canvas-confetti"
+  "lucide-react": "For UI icons across the game interface"
+
+images:
+  - path: "artifacts/focusquest/public/images/ocean-bg.png"
+    description: "Cartoonish vibrant ocean with floating islands, pirate ships, sunny bright sky, gamified UI background, stylized 3D"
+    aspect_ratio: "16:9"
+  - path: "artifacts/focusquest/public/images/space-bg.png"
+    description: "Cartoonish vibrant space nebula, purple and pink galaxies, floating colorful planets, gamified UI background, stylized 3D"
+    aspect_ratio: "16:9"
+  - path: "artifacts/focusquest/public/images/future-bg.png"
+    description: "Cyberpunk futuristic glowing grid, neon cyan and blue floating holograms, gamified UI background, stylized 3D"
+    aspect_ratio: "16:9"
+
+notes:
+  - Game state is managed completely in client-side localStorage to meet the SPA requirements.
+  - Three visual themes automatically switch based on grade selection.
+  - Animations heavily rely on Framer Motion.
