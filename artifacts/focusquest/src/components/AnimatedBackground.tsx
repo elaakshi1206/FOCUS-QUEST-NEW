@@ -1,11 +1,16 @@
 import { useGame } from '@/lib/store';
 
-export function AnimatedBackground() {
-  const { theme } = useGame();
+interface AnimatedBackgroundProps {
+  themeOverride?: 'ocean' | 'space' | 'future';
+}
+
+export function AnimatedBackground({ themeOverride }: AnimatedBackgroundProps = {}) {
+  const { theme: storeTheme } = useGame();
+  const theme = themeOverride || storeTheme;
   
   let bgImg = 'ocean-bg.png';
   if (theme === 'space') bgImg = 'space-bg.png';
-  if (theme === 'future') bgImg = 'future-bg.png';
+  if (theme === 'future') bgImg = 'future-map-bg.png';
 
   return (
     <div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none">

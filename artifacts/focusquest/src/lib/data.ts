@@ -1,26 +1,33 @@
 export interface Character {
   id: string;
   name: string;
+  theme: 'ocean' | 'space' | 'future';
   requiredXp: number;
   imagePath: string;
   description: string;
 }
 
 export const CHARACTERS: Character[] = [
-  { id: 'c1', name: 'Cabin Boy', requiredXp: 0, imagePath: '/characters/WhatsApp_Image_2026-03-24_at_14.08.22_1774375181412.jpeg', description: 'Ready for adventure!' },
-  { id: 'c2', name: 'Deckhand Girl', requiredXp: 0, imagePath: '/characters/WhatsApp_Image_2026-03-24_at_14.08.24_1774375181418.jpeg', description: 'Swift with the ropes!' },
-  { id: 'c3', name: 'Navigator Boy', requiredXp: 500, imagePath: '/characters/WhatsApp_Image_2026-03-24_at_14.08.23_1774375181416.jpeg', description: 'Always knows the way.' },
-  { id: 'c4', name: 'Pirate Lookout', requiredXp: 500, imagePath: '/characters/WhatsApp_Image_2026-03-24_at_14.08.23_(1)_1774375181414.jpeg', description: 'Eagle eyes.' },
-  { id: 'c5', name: 'Storm Mage', requiredXp: 1200, imagePath: '/characters/WhatsApp_Image_2026-03-24_at_14.08.24_(1)_1774375181417.jpeg', description: 'Controls the lightning.' },
-  { id: 'c6', name: 'Powder Monkey', requiredXp: 1200, imagePath: '/characters/WhatsApp_Image_2026-03-24_at_14.08.26_(1)_1774375168567.jpeg', description: 'Explosive personality!' },
-  { id: 'c7', name: "Cap'n Cookie", requiredXp: 2500, imagePath: '/characters/WhatsApp_Image_2026-03-24_at_14.08.25_(1)_1774375168566.jpeg', description: 'Feeds the crew.' },
-  { id: 'c8', name: 'Bosun Boy', requiredXp: 2500, imagePath: '/characters/WhatsApp_Image_2026-03-24_at_14.08.26_(2)_1774375168568.jpeg', description: 'Strongest on deck.' },
-  { id: 'c9', name: 'Cannoneer', requiredXp: 2500, imagePath: '/characters/WhatsApp_Image_2026-03-24_at_14.08.26_1774375168568.jpeg', description: 'Boom!' },
-  { id: 'c10', name: 'Treasure Hunter', requiredXp: 5000, imagePath: '/characters/WhatsApp_Image_2026-03-24_at_14.08.25_(2)_1774375168567.jpeg', description: 'Finds the gold.' },
-  { id: 'c11', name: 'First Mate', requiredXp: 5000, imagePath: '/characters/WhatsApp_Image_2026-03-24_at_14.08.25_1774375168567.jpeg', description: 'Loyal and fierce.' },
-  { id: 'c12', name: 'Sea King', requiredXp: 5000, imagePath: '/characters/WhatsApp_Image_2026-03-24_at_14.08.27_(1)_1774375168569.jpeg', description: 'Ruler of the waves.' },
-  { id: 'c13', name: 'Pirate Queen', requiredXp: 5000, imagePath: '/characters/WhatsApp_Image_2026-03-24_at_14.08.27_(2)_1774375168569.jpeg', description: 'Legendary captain.' },
-  { id: 'c14', name: 'Ocean Witch', requiredXp: 5000, imagePath: '/characters/WhatsApp_Image_2026-03-24_at_14.08.27_1774375168570.jpeg', description: 'Mystical depths.' }
+  // Ocean theme (1st-4th std)
+  { id: 'c1', name: 'Cabin Boy', theme: 'ocean', requiredXp: 0, imagePath: '/characters/WhatsApp_Image_2026-03-24_at_14.08.22_1774375181412.jpeg', description: 'Ready for adventure!' },
+  { id: 'c2', name: 'Deckhand Girl', theme: 'ocean', requiredXp: 0, imagePath: '/characters/WhatsApp_Image_2026-03-24_at_14.08.24_1774375181418.jpeg', description: 'Swift with the ropes!' },
+  { id: 'c3', name: 'Navigator Boy', theme: 'ocean', requiredXp: 500, imagePath: '/characters/WhatsApp_Image_2026-03-24_at_14.08.23_1774375181416.jpeg', description: 'Always knows the way.' },
+  { id: 'c4', name: 'Pirate Lookout', theme: 'ocean', requiredXp: 500, imagePath: '/characters/WhatsApp_Image_2026-03-24_at_14.08.23_(1)_1774375181414.jpeg', description: 'Eagle eyes.' },
+  { id: 'c5', name: 'Storm Mage', theme: 'ocean', requiredXp: 1200, imagePath: '/characters/WhatsApp_Image_2026-03-24_at_14.08.24_(1)_1774375181417.jpeg', description: 'Controls the lightning.' },
+  { id: 'c6', name: 'Powder Monkey', theme: 'ocean', requiredXp: 1200, imagePath: '/characters/WhatsApp_Image_2026-03-24_at_14.08.26_(1)_1774375168567.jpeg', description: 'Explosive personality!' },
+  { id: 'c7', name: "Cap'n Cookie", theme: 'ocean', requiredXp: 2500, imagePath: '/characters/WhatsApp_Image_2026-03-24_at_14.08.25_(1)_1774375168566.jpeg', description: 'Feeds the crew.' },
+  { id: 'c8', name: 'Bosun Boy', theme: 'ocean', requiredXp: 2500, imagePath: '/characters/WhatsApp_Image_2026-03-24_at_14.08.26_(2)_1774375168568.jpeg', description: 'Strongest on deck.' },
+  { id: 'c9', name: 'Cannoneer', theme: 'ocean', requiredXp: 2500, imagePath: '/characters/WhatsApp_Image_2026-03-24_at_14.08.26_1774375168568.jpeg', description: 'Boom!' },
+  { id: 'c10', name: 'Treasure Hunter', theme: 'ocean', requiredXp: 5000, imagePath: '/characters/WhatsApp_Image_2026-03-24_at_14.08.25_(2)_1774375168567.jpeg', description: 'Finds the gold.' },
+  { id: 'c11', name: 'First Mate', theme: 'ocean', requiredXp: 5000, imagePath: '/characters/WhatsApp_Image_2026-03-24_at_14.08.25_1774375168567.jpeg', description: 'Loyal and fierce.' },
+  { id: 'c12', name: 'Sea King', theme: 'ocean', requiredXp: 5000, imagePath: '/characters/WhatsApp_Image_2026-03-24_at_14.08.27_(1)_1774375168569.jpeg', description: 'Ruler of the waves.' },
+  { id: 'c13', name: 'Pirate Queen', theme: 'ocean', requiredXp: 5000, imagePath: '/characters/WhatsApp_Image_2026-03-24_at_14.08.27_(2)_1774375168569.jpeg', description: 'Legendary captain.' },
+  { id: 'c14', name: 'Ocean Witch', theme: 'ocean', requiredXp: 5000, imagePath: '/characters/WhatsApp_Image_2026-03-24_at_14.08.27_1774375168570.jpeg', description: 'Mystical depths.' },
+  // Future theme (8th-10th std)
+  { id: 'f1', name: 'Angel Warrior', theme: 'future', requiredXp: 0, imagePath: '/characters/future/angel_warrior.png', description: 'Celestial protector of the digital realm.' },
+  { id: 'f2', name: 'Neon Sniper', theme: 'future', requiredXp: 0, imagePath: '/characters/future/neon_sniper.png', description: 'Silent shadow with deadly precision.' },
+  { id: 'f3', name: 'Cyber Guardian', theme: 'future', requiredXp: 500, imagePath: '/characters/future/cyber_guardian.png', description: 'Advanced AI sentinel with drone escorts.' },
+  { id: 'f4', name: 'Samurai Knight', theme: 'future', requiredXp: 1200, imagePath: '/characters/future/samurai_knight.png', description: 'Ancient honor meets futuristic power.' },
 ];
 
 export interface Subject {
@@ -299,6 +306,129 @@ export const QUESTS: Quest[] = [
     ]
   }
 ];
+
+// ======== TOPICS PER SUBJECT ========
+export interface Topic {
+  id: string;
+  subjectId: string;
+  title: string;
+  icon: string;
+}
+
+export const TOPICS: Topic[] = [
+  { id: 'math_fractions', subjectId: 'math', title: 'Fractions', icon: '🍕' },
+  { id: 'math_geometry', subjectId: 'math', title: 'Geometry', icon: '📐' },
+  { id: 'math_algebra', subjectId: 'math', title: 'Algebra Basics', icon: '🔣' },
+  { id: 'math_tables', subjectId: 'math', title: 'Times Tables', icon: '✖️' },
+  { id: 'sci_solar', subjectId: 'science', title: 'Solar System', icon: '🌍' },
+  { id: 'sci_matter', subjectId: 'science', title: 'States of Matter', icon: '🧊' },
+  { id: 'sci_food', subjectId: 'science', title: 'Food Chains', icon: '🦊' },
+  { id: 'sci_plants', subjectId: 'science', title: 'Plant Biology', icon: '🌱' },
+  { id: 'eng_speech', subjectId: 'english', title: 'Parts of Speech', icon: '📖' },
+  { id: 'eng_punct', subjectId: 'english', title: 'Punctuation', icon: '❓' },
+  { id: 'eng_reading', subjectId: 'english', title: 'Reading Skills', icon: '📚' },
+  { id: 'soc_continents', subjectId: 'social', title: 'Continents', icon: '🗺️' },
+  { id: 'soc_egypt', subjectId: 'social', title: 'Ancient Egypt', icon: '🏛️' },
+  { id: 'soc_maps', subjectId: 'social', title: 'Map Skills', icon: '🧭' },
+  { id: 'log_patterns', subjectId: 'logic', title: 'Patterns', icon: '🔢' },
+  { id: 'log_critical', subjectId: 'logic', title: 'Critical Thinking', icon: '🧠' },
+  { id: 'log_code', subjectId: 'logic', title: 'Code & Algorithms', icon: '💻' },
+];
+
+// ======== EQUIPMENT / CUSTOMIZATION ========
+export interface Equipment {
+  id: string;
+  name: string;
+  theme: 'ocean' | 'space' | 'future';
+  category: 'outfit' | 'vehicle' | 'accessory';
+  requiredXp: number;
+  emoji: string;
+}
+
+export const EQUIPMENT: Equipment[] = [
+  // Ocean theme
+  { id: 'o_outfit1', name: 'Pirate Coat', theme: 'ocean', category: 'outfit', requiredXp: 0, emoji: '🏴‍☠️' },
+  { id: 'o_outfit2', name: 'Captain Hat', theme: 'ocean', category: 'outfit', requiredXp: 300, emoji: '🎩' },
+  { id: 'o_outfit3', name: 'Royal Cape', theme: 'ocean', category: 'outfit', requiredXp: 1000, emoji: '👑' },
+  { id: 'o_vehicle1', name: 'Wooden Boat', theme: 'ocean', category: 'vehicle', requiredXp: 0, emoji: '🚣' },
+  { id: 'o_vehicle2', name: 'Treasure Ship', theme: 'ocean', category: 'vehicle', requiredXp: 500, emoji: '⛵' },
+  { id: 'o_vehicle3', name: 'Pirate Galleon', theme: 'ocean', category: 'vehicle', requiredXp: 2000, emoji: '🏴‍☠️' },
+  { id: 'o_acc1', name: 'Treasure Map', theme: 'ocean', category: 'accessory', requiredXp: 0, emoji: '🗺️' },
+  { id: 'o_acc2', name: 'Spyglass', theme: 'ocean', category: 'accessory', requiredXp: 400, emoji: '🔭' },
+  { id: 'o_acc3', name: 'Golden Compass', theme: 'ocean', category: 'accessory', requiredXp: 1500, emoji: '🧭' },
+  // Space theme
+  { id: 's_outfit1', name: 'Space Suit', theme: 'space', category: 'outfit', requiredXp: 0, emoji: '🧑‍🚀' },
+  { id: 's_outfit2', name: 'Galaxy Armor', theme: 'space', category: 'outfit', requiredXp: 300, emoji: '🛡️' },
+  { id: 's_outfit3', name: 'Cosmic Cloak', theme: 'space', category: 'outfit', requiredXp: 1000, emoji: '✨' },
+  { id: 's_vehicle1', name: 'Shuttle Pod', theme: 'space', category: 'vehicle', requiredXp: 0, emoji: '🚀' },
+  { id: 's_vehicle2', name: 'Star Cruiser', theme: 'space', category: 'vehicle', requiredXp: 500, emoji: '🛸' },
+  { id: 's_vehicle3', name: 'Galaxy Warship', theme: 'space', category: 'vehicle', requiredXp: 2000, emoji: '🌟' },
+  { id: 's_acc1', name: 'Jetpack', theme: 'space', category: 'accessory', requiredXp: 0, emoji: '🎒' },
+  { id: 's_acc2', name: 'Space Helmet', theme: 'space', category: 'accessory', requiredXp: 400, emoji: '⛑️' },
+  { id: 's_acc3', name: 'Star Blaster', theme: 'space', category: 'accessory', requiredXp: 1500, emoji: '🔫' },
+  // Future theme
+  { id: 'f_outfit1', name: 'Tech Suit', theme: 'future', category: 'outfit', requiredXp: 0, emoji: '🦾' },
+  { id: 'f_outfit2', name: 'Holo Armor', theme: 'future', category: 'outfit', requiredXp: 300, emoji: '💠' },
+  { id: 'f_outfit3', name: 'Neural Cloak', theme: 'future', category: 'outfit', requiredXp: 1000, emoji: '🧬' },
+  { id: 'f_vehicle1', name: 'Hover Board', theme: 'future', category: 'vehicle', requiredXp: 0, emoji: '🛹' },
+  { id: 'f_vehicle2', name: 'Energy Glider', theme: 'future', category: 'vehicle', requiredXp: 500, emoji: '⚡' },
+  { id: 'f_vehicle3', name: 'Quantum Jet', theme: 'future', category: 'vehicle', requiredXp: 2000, emoji: '🌀' },
+  { id: 'f_acc1', name: 'Data Visor', theme: 'future', category: 'accessory', requiredXp: 0, emoji: '🥽' },
+  { id: 'f_acc2', name: 'Neural Helmet', theme: 'future', category: 'accessory', requiredXp: 400, emoji: '🪖' },
+  { id: 'f_acc3', name: 'Mind Link', theme: 'future', category: 'accessory', requiredXp: 1500, emoji: '🔮' },
+];
+
+// ======== VIDEO TIMESTAMPS FOR SMART FEEDBACK ========
+export interface VideoTimestamp {
+  questionId: string;
+  startTime: string;
+  endTime: string;
+  label: string;
+}
+
+export const VIDEO_TIMESTAMPS: VideoTimestamp[] = [
+  { questionId: 'mq1', startTime: '00:30', endTime: '01:15', label: 'Fraction terminology' },
+  { questionId: 'mq2', startTime: '01:20', endTime: '02:00', label: 'Parts of a fraction' },
+  { questionId: 'mq3', startTime: '02:15', endTime: '02:45', label: 'Comparing fractions' },
+  { questionId: 'mq4', startTime: '03:00', endTime: '03:40', label: 'Equivalent fractions' },
+  { questionId: 'mq5', startTime: '00:45', endTime: '01:30', label: 'Polygon sides' },
+  { questionId: 'mq6', startTime: '01:35', endTime: '02:10', label: 'What is a polygon' },
+  { questionId: 'mq7', startTime: '02:30', endTime: '03:15', label: 'Triangle angles' },
+  { questionId: 'mq8', startTime: '03:20', endTime: '04:00', label: 'Types of quadrilaterals' },
+  { questionId: 'sq1', startTime: '00:30', endTime: '01:20', label: 'Inner planets' },
+  { questionId: 'sq2', startTime: '01:30', endTime: '02:15', label: 'Gas giants' },
+  { questionId: 'sq3', startTime: '02:20', endTime: '03:00', label: 'Saturn\'s rings' },
+  { questionId: 'sq4', startTime: '03:10', endTime: '03:50', label: 'Number of planets' },
+  { questionId: 'eq1', startTime: '01:00', endTime: '01:45', label: 'Verbs explained' },
+  { questionId: 'eq2', startTime: '01:50', endTime: '02:30', label: 'Adjectives explained' },
+  { questionId: 'lq1', startTime: '00:30', endTime: '01:15', label: 'Arithmetic sequences' },
+  { questionId: 'lq7', startTime: '00:20', endTime: '01:00', label: 'What is an algorithm' },
+];
+
+// ======== FOCUS ISSUES ========
+export const FOCUS_ISSUES = [
+  { id: 'distracted', label: 'I get distracted easily', emoji: '📱' },
+  { id: 'bored', label: 'I get bored quickly', emoji: '😴' },
+  { id: 'hard', label: "I don't understand topics", emoji: '🤯' },
+  { id: 'motivation', label: 'I lose motivation', emoji: '😔' },
+  { id: 'improve', label: 'I want to improve focus', emoji: '🎯' },
+];
+
+// ======== THEME MAP LABELS ========
+export const THEME_MAP_CONFIG = {
+  ocean: {
+    mapTitle: '🗺️ Treasure Seas Map',
+    subjectLabels: { math: 'Math Island', science: 'Science Reef', english: 'Language Lagoon', social: 'History Harbor', logic: 'Logic Bay' },
+  },
+  space: {
+    mapTitle: '🌌 Galaxy Map',
+    subjectLabels: { math: 'Math Planet', science: 'Science Galaxy', english: 'Knowledge Station', social: 'History Nebula', logic: 'Logic Nebula' },
+  },
+  future: {
+    mapTitle: '⚡ Cyber Grid Map',
+    subjectLabels: { math: 'Logic Grid', science: 'Science Lab', english: 'Data Arena', social: 'Knowledge Vault', logic: 'Mastery Core' },
+  },
+};
 
 export function getGradeTheme(grade: number): 'ocean' | 'space' | 'future' {
   if (grade <= 4) return 'ocean';

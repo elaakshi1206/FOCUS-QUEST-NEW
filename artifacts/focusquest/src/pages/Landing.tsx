@@ -2,7 +2,7 @@ import { motion } from 'framer-motion';
 import { useLocation } from 'wouter';
 import { useGame } from '@/lib/store';
 import { AnimatedBackground } from '@/components/AnimatedBackground';
-import { Gamepad2, Star, Zap, Trophy } from 'lucide-react';
+import { Gamepad2, Star, Zap, Trophy, LogIn, UserPlus } from 'lucide-react';
 
 const floatingItems = [
   { emoji: '🏴‍☠️', x: '10%', delay: 0, size: 'text-4xl' },
@@ -124,27 +124,39 @@ export function Landing() {
           initial={{ opacity: 0, y: 20 }} 
           animate={{ opacity: 1, y: 0 }} 
           transition={{ delay: 0.8 }}
-          className="flex flex-col sm:flex-row gap-4 justify-center mb-12"
+          className="flex flex-col sm:flex-row gap-4 justify-center mb-6"
         >
-          <motion.button
-            onClick={handleStart}
-            whileHover={{ scale: 1.05, y: -3 }}
-            whileTap={{ scale: 0.95 }}
-            className="game-button game-button-primary text-xl px-12 py-5 inline-flex items-center gap-3"
-          >
-            <Gamepad2 className="w-6 h-6" />
-            {userName ? 'Continue Adventure' : 'Start Your Quest!'}
-          </motion.button>
-          
-          {!userName && (
+          {userName ? (
             <motion.button
-              onClick={() => setLocation('/setup')}
+              onClick={handleStart}
               whileHover={{ scale: 1.05, y: -3 }}
               whileTap={{ scale: 0.95 }}
-              className="game-button text-xl px-8 py-5 bg-white/20 backdrop-blur text-white border-2 border-white/40 inline-flex items-center gap-2"
+              className="game-button game-button-primary text-xl px-12 py-5 inline-flex items-center gap-3"
             >
-              👤 Login
+              <Gamepad2 className="w-6 h-6" />
+              Continue Adventure
             </motion.button>
+          ) : (
+            <>
+              <motion.button
+                onClick={() => setLocation('/setup')}
+                whileHover={{ scale: 1.05, y: -3 }}
+                whileTap={{ scale: 0.95 }}
+                className="game-button game-button-primary text-xl px-10 py-5 inline-flex items-center gap-3"
+              >
+                <UserPlus className="w-6 h-6" />
+                Login / Sign Up
+              </motion.button>
+              <motion.button
+                onClick={handleStart}
+                whileHover={{ scale: 1.05, y: -3 }}
+                whileTap={{ scale: 0.95 }}
+                className="game-button text-xl px-8 py-5 bg-white/20 backdrop-blur text-white border-2 border-white/40 inline-flex items-center gap-3"
+              >
+                <Gamepad2 className="w-5 h-5" />
+                Play as Guest
+              </motion.button>
+            </>
           )}
         </motion.div>
 
@@ -175,16 +187,16 @@ export function Landing() {
         className="fixed bottom-6 right-6 z-20 flex items-end gap-3"
       >
         <motion.div
-          className="bg-white/20 backdrop-blur border border-white/40 text-white px-4 py-3 rounded-2xl rounded-br-none text-sm font-bold max-w-48 shadow-xl"
+          className="bg-white/20 backdrop-blur border border-white/40 text-white px-5 py-4 rounded-2xl rounded-br-none text-base font-bold max-w-56 shadow-xl"
           animate={{ scale: [1, 1.02, 1] }}
           transition={{ repeat: Infinity, duration: 2 }}
         >
-          🦜 Ahoy! Ready for an epic learning adventure?
+          🦜 Hello Explorer! Welcome to FocusQuest! Ready to level up your focus?
         </motion.div>
         <motion.div
           animate={{ y: [0, -8, 0] }}
           transition={{ repeat: Infinity, duration: 2, ease: 'easeInOut' }}
-          className="w-16 h-16 bg-primary rounded-full flex items-center justify-center text-3xl border-4 border-white/50 shadow-2xl"
+          className="w-20 h-20 bg-primary rounded-full flex items-center justify-center text-4xl border-4 border-white/50 shadow-2xl"
         >
           🦜
         </motion.div>

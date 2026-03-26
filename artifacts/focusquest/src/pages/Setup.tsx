@@ -1,148 +1,243 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useLocation } from 'wouter';
 import { useGame } from '@/lib/store';
 import { Mascot } from '@/components/Mascot';
 import { AnimatedBackground } from '@/components/AnimatedBackground';
+import { SUBJECTS, TOPICS, FOCUS_ISSUES } from '@/lib/data';
+import { Check } from 'lucide-react';
+
+const TOTAL_STEPS = 5;
+
+const gradeGroups = [
+  { label: '1st – 4th Standard', range: '🏴‍☠️ Ocean Pirate Adventure', grades: [1, 2, 3, 4], theme: 'ocean', emoji: '🌊' },
+  { label: '5th – 7th Standard', range: '🚀 Space Explorer', grades: [5, 6, 7], theme: 'space', emoji: '🪐' },
+  { label: '8th – 10th Standard', range: '🤖 Futuristic Mind Lab', grades: [8, 9, 10], theme: 'future', emoji: '⚡' },
+];
 
 export function Setup() {
   const [, setLocation] = useLocation();
-  const { setProfile, userName: savedName, grade: savedGrade } = useGame();
+  const { setProfile, setSelectedSubjects, setSelectedTopics, userName: savedName, grade: savedGrade } = useGame();
   
   const [step, setStep] = useState(1);
   const [name, setName] = useState(savedName || '');
+  const [gradeGroup, setGradeGroup] = useState<number | null>(null);
   const [grade, setGrade] = useState<number>(savedGrade || 3);
   const [issue, setIssue] = useState('');
+  const [selectedSubs, setSelectedSubs] = useState<string[]>([]);
+  const [selectedTopicMap, setSelectedTopicMap] = useState<Record<string, string[]>>({});
+
+  // Compute preview theme from selected grade group
+  const previewTheme = gradeGroup !== null
+    ? (gradeGroups[gradeGroup].theme as 'ocean' | 'space' | 'future')
+    : undefined;
+
+  // Apply theme class to body in real-time when grade group changes
+  useEffect(() => {
+    if (previewTheme) {
+      document.body.className = `theme-${previewTheme}`;
+    }
+    return () => {
+      // Cleanup will be handled by ThemeWrapper on next render
+    };
+  }, [previewTheme]);
+
+  const mascotMessages = [
+    "Ahoy! What's your name, brave explorer?",
+    "Which school standard are you in?",
+    "What makes it hard to focus? We'll fix that!",
+    "Which subjects do you want to explore?",
+    "Pick the topics you'd love to master!"
+  ];
 
   const handleNext = () => {
-    if (step < 3) setStep(step + 1);
-    else {
+    if (step < TOTAL_STEPS) {
+      setStep(step + 1);
+    } else {
       setProfile(name || 'Adventurer', grade, issue);
+      setSelectedSubjects(selectedSubs);
+      setSelectedTopics(selectedTopicMap);
       setLocation('/map');
     }
   };
 
-  const focusIssues = [
-    { id: 'bored', label: 'I get bored easily 😴' },
-    { id: 'distracted', label: 'My phone distracts me 📱' },
-    { id: 'hard', label: 'The topics are too hard 🤯' },
-    { id: 'long', label: "I can't sit still for long 🏃" }
-  ];
+  const toggleSubject = (id: string) => {
+    setSelectedSubs(prev => prev.includes(id) ? prev.filter(s => s !== id) : [...prev, id]);
+  };
+
+  const toggleTopic = (subId: string, topicId: string) => {
+    setSelectedTopicMap(prev => {
+      const current = prev[subId] || [];
+      const updated = current.includes(topicId) ? current.filter(t => t !== topicId) : [...current, topicId];
+      return { ...prev, [subId]: updated };
+    });
+  };
+
+  const canProceed = () => {
+    switch (step) {
+      case 1: return name.trim().length > 0;
+      case 2: return gradeGroup !== null;
+      case 3: return issue.length > 0;
+      case 4: return selectedSubs.length > 0;
+      case 5: return Object.values(selectedTopicMap).some(arr => arr.length > 0);
+      default: return true;
+    }
+  };
+
+  const availableTopics = TOPICS.filter(t => selectedSubs.includes(t.subjectId));
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center p-6 relative">
-      <AnimatedBackground />
-      
-      <Mascot message={
-        step === 1 ? "Ahoy! What's your name and grade?" :
-        step === 2 ? "What makes it hard to focus? We'll fix it!" :
-        "Ready to set sail?"
-      } />
+      <AnimatedBackground themeOverride={previewTheme} />
+      <Mascot message={mascotMessages[step - 1]} />
 
-      <div className="w-full max-w-md z-10">
+      <div className="w-full max-w-lg z-10">
+        {/* Progress bar */}
         <div className="flex justify-center gap-2 mb-8">
-          {[1, 2, 3].map(i => (
-            <div key={i} className={`h-2 rounded-full transition-all duration-300 ${i <= step ? 'bg-primary w-8' : 'bg-white/20 w-4'}`} />
+          {Array.from({ length: TOTAL_STEPS }).map((_, i) => (
+            <div key={i} className={`h-2 rounded-full transition-all duration-500 ${i < step ? 'bg-primary w-8' : i === step - 1 ? 'bg-primary w-8' : 'bg-white/20 w-4'}`} />
           ))}
         </div>
 
         <AnimatePresence mode="wait">
+          {/* Step 1: Hero Name */}
           {step === 1 && (
-            <motion.div 
-              key="step1"
-              initial={{ opacity: 0, x: 50 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -50 }}
-              className="glass-panel p-8 rounded-3xl"
-            >
+            <motion.div key="step1" initial={{ opacity: 0, x: 50 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -50 }} className="glass-panel p-8 rounded-3xl">
               <h2 className="text-3xl font-display font-bold mb-6 text-center text-primary">Create Your Hero</h2>
-              
               <div className="space-y-6">
                 <div>
                   <label className="block text-sm font-bold text-muted-foreground mb-2 uppercase">Hero Name</label>
                   <input 
-                    type="text" 
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
+                    type="text" value={name} onChange={(e) => setName(e.target.value)}
                     placeholder="e.g. Captain Alex"
-                    className="w-full bg-background border-2 border-border rounded-xl px-4 py-3 font-bold text-lg focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/20 transition-all"
+                    className="w-full bg-background border-2 border-border rounded-xl px-4 py-4 font-bold text-lg focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/20 transition-all"
                   />
                 </div>
-                
-                <div>
-                  <label className="block text-sm font-bold text-muted-foreground mb-2 uppercase">School Grade (1-10)</label>
-                  <div className="flex items-center gap-4 bg-background border-2 border-border rounded-xl p-2">
-                    <input 
-                      type="range" min="1" max="10" 
-                      value={grade} onChange={(e) => setGrade(parseInt(e.target.value))}
-                      className="flex-1 accent-primary"
-                    />
-                    <div className="w-12 h-12 bg-primary text-primary-foreground rounded-lg flex items-center justify-center font-display font-bold text-xl">
-                      {grade}
-                    </div>
-                  </div>
-                  <p className="text-xs text-muted-foreground mt-2 text-center">
-                    Grades 1-4: Ocean | Grades 5-7: Space | Grades 8-10: Cyber
-                  </p>
-                </div>
-
-                <button 
-                  onClick={handleNext}
-                  disabled={!name.trim()}
-                  className="game-button game-button-primary w-full py-4 text-xl mt-4 disabled:opacity-50 disabled:grayscale"
-                >
+                <button onClick={handleNext} disabled={!canProceed()} className="game-button game-button-primary w-full py-4 text-xl mt-4 disabled:opacity-50 disabled:grayscale">
                   Continue
                 </button>
               </div>
             </motion.div>
           )}
 
+          {/* Step 2: Standard / Grade Group Selection */}
           {step === 2 && (
-            <motion.div 
-              key="step2"
-              initial={{ opacity: 0, x: 50 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -50 }}
-              className="glass-panel p-8 rounded-3xl"
-            >
-              <h2 className="text-3xl font-display font-bold mb-6 text-center text-primary">Your Challenge</h2>
-              
-              <div className="grid grid-cols-1 gap-3 mb-6">
-                {focusIssues.map(opt => (
+            <motion.div key="step2" initial={{ opacity: 0, x: 50 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -50 }} className="glass-panel p-8 rounded-3xl">
+              <h2 className="text-3xl font-display font-bold mb-6 text-center text-primary">Your Standard</h2>
+              <div className="grid grid-cols-1 gap-4 mb-6">
+                {gradeGroups.map((g, i) => (
                   <button
-                    key={opt.id}
-                    onClick={() => setIssue(opt.id)}
-                    className={`p-4 rounded-xl border-2 text-left font-bold transition-all ${issue === opt.id ? 'border-primary bg-primary/10 scale-[1.02]' : 'border-border bg-background hover:border-primary/50'}`}
+                    key={i}
+                    onClick={() => { setGradeGroup(i); setGrade(g.grades[0]); }}
+                    className={`p-5 rounded-2xl border-2 text-left transition-all duration-300 ${gradeGroup === i ? 'border-primary bg-primary/15 scale-[1.02] shadow-lg shadow-primary/20' : 'border-border bg-background hover:border-primary/50'}`}
                   >
-                    {opt.label}
+                    <div className="flex items-center gap-4">
+                      <span className="text-4xl">{g.emoji}</span>
+                      <div>
+                        <p className="font-display font-bold text-lg">{g.label}</p>
+                        <p className="text-sm text-muted-foreground font-bold">{g.range}</p>
+                      </div>
+                      {gradeGroup === i && <Check className="ml-auto w-6 h-6 text-primary" />}
+                    </div>
                   </button>
                 ))}
               </div>
-
-              <button 
-                onClick={handleNext}
-                disabled={!issue}
-                className="game-button game-button-primary w-full py-4 text-xl disabled:opacity-50"
-              >
-                Almost There!
-              </button>
+              <div className="flex gap-3">
+                <button onClick={() => setStep(step - 1)} className="game-button bg-white/15 backdrop-blur text-white border border-white/30 px-6 py-4 text-lg">Back</button>
+                <button onClick={handleNext} disabled={!canProceed()} className="game-button game-button-primary flex-1 py-4 text-xl disabled:opacity-50">Continue</button>
+              </div>
             </motion.div>
           )}
 
+          {/* Step 3: Focus Issues */}
           {step === 3 && (
-            <motion.div 
-              key="step3"
-              initial={{ opacity: 0, x: 50 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -50 }}
-              className="glass-panel p-8 rounded-3xl text-center"
-            >
-              <div className="text-6xl mb-6 animate-bounce">🗺️</div>
-              <h2 className="text-3xl font-display font-bold mb-4 text-primary">Ready to Explore?</h2>
-              <p className="text-muted-foreground font-bold mb-8">
-                Your world has been generated based on your grade. Let's find some quests and earn XP!
-              </p>
+            <motion.div key="step3" initial={{ opacity: 0, x: 50 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -50 }} className="glass-panel p-8 rounded-3xl">
+              <h2 className="text-3xl font-display font-bold mb-6 text-center text-primary">Why do you lose focus?</h2>
+              <div className="grid grid-cols-1 gap-3 mb-6">
+                {FOCUS_ISSUES.map(opt => (
+                  <button
+                    key={opt.id}
+                    onClick={() => setIssue(opt.id)}
+                    className={`p-4 rounded-xl border-2 text-left font-bold transition-all duration-200 flex items-center gap-3 ${issue === opt.id ? 'border-primary bg-primary/10 scale-[1.02]' : 'border-border bg-background hover:border-primary/50'}`}
+                  >
+                    <span className="text-2xl">{opt.emoji}</span>
+                    <span>{opt.label}</span>
+                    {issue === opt.id && <Check className="ml-auto w-5 h-5 text-primary" />}
+                  </button>
+                ))}
+              </div>
+              <div className="flex gap-3">
+                <button onClick={() => setStep(step - 1)} className="game-button bg-white/15 backdrop-blur text-white border border-white/30 px-6 py-4 text-lg">Back</button>
+                <button onClick={handleNext} disabled={!canProceed()} className="game-button game-button-primary flex-1 py-4 text-xl disabled:opacity-50">Almost There!</button>
+              </div>
+            </motion.div>
+          )}
 
-              <button 
-                onClick={handleNext}
-                className="game-button game-button-primary w-full py-4 text-xl"
-              >
-                Enter World Map
-              </button>
+          {/* Step 4: Subject Selection */}
+          {step === 4 && (
+            <motion.div key="step4" initial={{ opacity: 0, x: 50 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -50 }} className="glass-panel p-8 rounded-3xl">
+              <h2 className="text-3xl font-display font-bold mb-2 text-center text-primary">Choose Subjects</h2>
+              <p className="text-center text-muted-foreground font-bold mb-6">Pick one or more to explore!</p>
+              <div className="grid grid-cols-2 gap-3 mb-6">
+                {SUBJECTS.map(sub => {
+                  const selected = selectedSubs.includes(sub.id);
+                  return (
+                    <button key={sub.id} onClick={() => toggleSubject(sub.id)}
+                      className={`p-4 rounded-2xl border-2 transition-all duration-200 flex flex-col items-center gap-2 ${selected ? 'border-primary bg-primary/15 scale-[1.03] shadow-lg shadow-primary/20' : 'border-border bg-background hover:border-primary/50'}`}
+                    >
+                      <span className="text-4xl">{sub.icon}</span>
+                      <span className="font-bold text-sm">{sub.title}</span>
+                      {selected && <Check className="w-5 h-5 text-primary" />}
+                    </button>
+                  );
+                })}
+              </div>
+              <div className="flex gap-3">
+                <button onClick={() => setStep(step - 1)} className="game-button bg-white/15 backdrop-blur text-white border border-white/30 px-6 py-4 text-lg">Back</button>
+                <button onClick={handleNext} disabled={!canProceed()} className="game-button game-button-primary flex-1 py-4 text-xl disabled:opacity-50">Pick Topics</button>
+              </div>
+            </motion.div>
+          )}
+
+          {/* Step 5: Topic Selection */}
+          {step === 5 && (
+            <motion.div key="step5" initial={{ opacity: 0, x: 50 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -50 }} className="glass-panel p-8 rounded-3xl">
+              <h2 className="text-3xl font-display font-bold mb-2 text-center text-primary">Pick Topics</h2>
+              <p className="text-center text-muted-foreground font-bold mb-6">What do you want to master?</p>
+              <div className="space-y-4 mb-6 max-h-[400px] overflow-y-auto pr-1">
+                {selectedSubs.map(subId => {
+                  const sub = SUBJECTS.find(s => s.id === subId);
+                  const subTopics = availableTopics.filter(t => t.subjectId === subId);
+                  if (!sub || subTopics.length === 0) return null;
+                  return (
+                    <div key={subId}>
+                      <p className="font-display font-bold text-sm text-muted-foreground uppercase mb-2 flex items-center gap-2">
+                        <span>{sub.icon}</span> {sub.title}
+                      </p>
+                      <div className="grid grid-cols-2 gap-2">
+                        {subTopics.map(topic => {
+                          const sel = (selectedTopicMap[subId] || []).includes(topic.id);
+                          return (
+                            <button key={topic.id} onClick={() => toggleTopic(subId, topic.id)}
+                              className={`p-3 rounded-xl border-2 text-sm font-bold transition-all flex items-center gap-2 ${sel ? 'border-primary bg-primary/10' : 'border-border bg-background hover:border-primary/50'}`}
+                            >
+                              <span>{topic.icon}</span>
+                              <span className="flex-1 text-left">{topic.title}</span>
+                              {sel && <Check className="w-4 h-4 text-primary shrink-0" />}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+              <div className="flex gap-3">
+                <button onClick={() => setStep(step - 1)} className="game-button bg-white/15 backdrop-blur text-white border border-white/30 px-6 py-4 text-lg">Back</button>
+                <button onClick={handleNext} disabled={!canProceed()} className="game-button game-button-primary flex-1 py-4 text-xl disabled:opacity-50">
+                  🗺️ Enter World Map
+                </button>
+              </div>
             </motion.div>
           )}
         </AnimatePresence>

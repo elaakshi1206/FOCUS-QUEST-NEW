@@ -9,6 +9,12 @@ export interface FocusSession {
   xpEarned: number;
 }
 
+export interface EquipmentState {
+  outfit: string;
+  vehicle: string;
+  accessory: string;
+}
+
 export interface GameState {
   isHydrated: boolean;
   userName: string;
@@ -21,6 +27,9 @@ export interface GameState {
   streak: number;
   completedQuests: string[];
   focusHistory: FocusSession[];
+  selectedSubjects: string[];
+  selectedTopics: Record<string, string[]>;
+  equipment: EquipmentState;
   
   // Actions
   setProfile: (name: string, grade: number, issue: string) => void;
@@ -29,6 +38,9 @@ export interface GameState {
   completeQuest: (questId: string, score: number, xpEarned: number, subjectId: string) => void;
   updateStreak: () => void;
   resetGame: () => void;
+  setSelectedSubjects: (subjects: string[]) => void;
+  setSelectedTopics: (topics: Record<string, string[]>) => void;
+  setEquipment: (equipment: Partial<EquipmentState>) => void;
 }
 
 const STORAGE_KEY = 'focusquest_state_v1';
@@ -39,11 +51,14 @@ const defaultState = {
   focusIssue: '',
   theme: 'ocean' as 'ocean' | 'space' | 'future',
   avatarId: 'c1',
-  xp: 150, // Start with some XP for demo
+  xp: 150,
   level: 2,
   streak: 3,
   completedQuests: [] as string[],
-  focusHistory: [] as FocusSession[]
+  focusHistory: [] as FocusSession[],
+  selectedSubjects: [] as string[],
+  selectedTopics: {} as Record<string, string[]>,
+  equipment: { outfit: 'o_outfit1', vehicle: 'o_vehicle1', accessory: 'o_acc1' } as EquipmentState,
 };
 
 const GameContext = createContext<GameState | null>(null);
@@ -71,21 +86,33 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
   };
 
   const setProfile = (userName: string, grade: number, focusIssue: string) => {
-    saveState({
-      ...state,
-      userName,
-      grade,
-      focusIssue,
-      theme: getGradeTheme(grade) as 'ocean' | 'space' | 'future'
-    });
+    const theme = getGradeTheme(grade) as 'ocean' | 'space' | 'future';
+    const defaultEquip = theme === 'ocean'
+      ? { outfit: 'o_outfit1', vehicle: 'o_vehicle1', accessory: 'o_acc1' }
+      : theme === 'space'
+      ? { outfit: 's_outfit1', vehicle: 's_vehicle1', accessory: 's_acc1' }
+      : { outfit: 'f_outfit1', vehicle: 'f_vehicle1', accessory: 'f_acc1' };
+    const defaultAvatar = theme === 'future' ? 'f1' : 'c1';
+    saveState({ ...state, userName, grade, focusIssue, theme, equipment: defaultEquip, avatarId: defaultAvatar });
   };
 
   const setAvatar = (avatarId: string) => {
     saveState({ ...state, avatarId });
   };
 
+  const setSelectedSubjects = (selectedSubjects: string[]) => {
+    saveState({ ...state, selectedSubjects });
+  };
+
+  const setSelectedTopics = (selectedTopics: Record<string, string[]>) => {
+    saveState({ ...state, selectedTopics });
+  };
+
+  const setEquipment = (partial: Partial<EquipmentState>) => {
+    saveState({ ...state, equipment: { ...state.equipment, ...partial } });
+  };
+
   const calculateLevel = (currentXp: number) => {
-    // Simple scaling: Level 1=0, L2=100, L3=300, L4=600, L5=1000...
     let lvl = 1;
     let required = 100;
     let total = 0;
@@ -101,34 +128,24 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     const newXp = state.xp + amount;
     const newLevel = calculateLevel(newXp);
     const levelUp = newLevel > state.level;
-
-    saveState({
-      ...state,
-      xp: newXp,
-      level: newLevel
-    });
-
+    saveState({ ...state, xp: newXp, level: newLevel });
     return { levelUp, newLevel };
   };
 
   const completeQuest = (questId: string, score: number, xpEarned: number, subjectId: string) => {
     const newXp = state.xp + xpEarned;
     const newLevel = calculateLevel(newXp);
-    
     const session: FocusSession = {
       id: Date.now().toString(),
       date: new Date().toISOString(),
-      score,
-      subjectId,
-      xpEarned
+      score, subjectId, xpEarned
     };
-
     saveState({
       ...state,
       xp: newXp,
       level: newLevel,
       completedQuests: Array.from(new Set([...state.completedQuests, questId])),
-      focusHistory: [...state.focusHistory, session].slice(-20) // Keep last 20
+      focusHistory: [...state.focusHistory, session].slice(-20)
     });
   };
 
@@ -149,7 +166,10 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       addXp,
       completeQuest,
       updateStreak,
-      resetGame
+      resetGame,
+      setSelectedSubjects,
+      setSelectedTopics,
+      setEquipment,
     }}>
       {children}
     </GameContext.Provider>

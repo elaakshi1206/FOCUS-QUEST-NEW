@@ -6,13 +6,17 @@ import { TopHUD } from '@/components/TopHUD';
 import { AnimatedBackground } from '@/components/AnimatedBackground';
 import { ChevronLeft, Clock, Star, Lock } from 'lucide-react';
 
+const DIFF_LABELS = ['', 'Easy', 'Medium', 'Hard'];
+const DIFF_COLORS = ['', 'text-green-500 bg-green-500/15', 'text-orange-500 bg-orange-500/15', 'text-red-500 bg-red-500/15'];
+
 export function QuestList() {
   const [, params] = useRoute('/quests/:subjectId');
   const subjectId = params?.subjectId;
-  const { xp, completedQuests } = useGame();
+  const { xp, completedQuests, theme } = useGame();
   
   const subject = SUBJECTS.find(s => s.id === subjectId);
   const subjectQuests = QUESTS.filter(q => q.subjectId === subjectId);
+  const completedCount = subjectQuests.filter(q => completedQuests.includes(q.id)).length;
 
   if (!subject) return <div>Subject not found</div>;
 
@@ -26,7 +30,7 @@ export function QuestList() {
           <ChevronLeft className="w-5 h-5" /> Back to Map
         </Link>
 
-        <div className="flex items-center gap-4 mb-8">
+        <div className="flex items-center gap-4 mb-4">
           <div className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${subject.color} flex items-center justify-center text-4xl shadow-lg border-2 border-white/20`}>
             {subject.icon}
           </div>
@@ -36,18 +40,22 @@ export function QuestList() {
           </div>
         </div>
 
+        {/* Progress bar */}
+        <div className="glass-panel px-5 py-3 rounded-2xl mb-6 flex items-center gap-3">
+          <span className="text-sm font-bold text-muted-foreground">Progress:</span>
+          <div className="flex-1 h-3 bg-muted rounded-full overflow-hidden">
+            <motion.div className="h-full bg-gradient-to-r from-primary to-accent rounded-full" initial={{ width: 0 }} animate={{ width: `${subjectQuests.length > 0 ? (completedCount / subjectQuests.length) * 100 : 0}%` }} transition={{ duration: 0.8 }} />
+          </div>
+          <span className="text-sm font-bold text-primary">{completedCount}/{subjectQuests.length}</span>
+        </div>
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {subjectQuests.map((quest, i) => {
             const isLocked = xp < quest.requiredXp;
             const isCompleted = completedQuests.includes(quest.id);
 
             return (
-              <motion.div
-                key={quest.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.1 }}
-              >
+              <motion.div key={quest.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.1 }}>
                 {isLocked ? (
                   <div className="glass-panel p-6 rounded-2xl opacity-70 relative overflow-hidden group">
                     <div className="absolute inset-0 bg-background/50 backdrop-blur-[2px] z-10 flex flex-col items-center justify-center">
@@ -60,9 +68,7 @@ export function QuestList() {
                   <Link href={`/quest/${subject.id}/${quest.id}`} className="block transform transition-transform hover:scale-[1.02] active:scale-[0.98]">
                     <div className={`glass-panel p-6 rounded-2xl border-2 ${isCompleted ? 'border-primary' : 'border-transparent hover:border-white/50'} relative overflow-hidden`}>
                       {isCompleted && (
-                        <div className="absolute top-0 right-0 bg-primary text-primary-foreground text-xs font-bold px-3 py-1 rounded-bl-xl">
-                          Completed
-                        </div>
+                        <div className="absolute top-0 right-0 bg-primary text-primary-foreground text-xs font-bold px-3 py-1 rounded-bl-xl">✓ Completed</div>
                       )}
                       <QuestCardContent quest={quest} isCompleted={isCompleted} />
                     </div>
@@ -80,7 +86,12 @@ export function QuestList() {
 function QuestCardContent({ quest, isCompleted }: { quest: any, isCompleted: boolean }) {
   return (
     <>
-      <h3 className="text-xl font-display font-bold text-card-foreground mb-2">{quest.title}</h3>
+      <div className="flex items-center gap-2 mb-2">
+        <h3 className="text-xl font-display font-bold text-card-foreground">{quest.title}</h3>
+        <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${DIFF_COLORS[quest.difficulty]}`}>
+          {DIFF_LABELS[quest.difficulty]}
+        </span>
+      </div>
       <div className="flex items-center gap-4 text-sm font-bold text-muted-foreground mb-4">
         <div className="flex items-center gap-1"><Clock className="w-4 h-4" /> {quest.timeMins} min</div>
         <div className="flex">
