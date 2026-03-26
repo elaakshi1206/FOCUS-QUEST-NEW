@@ -37,13 +37,13 @@ const defaultState = {
   userName: '',
   grade: 3,
   focusIssue: '',
-  theme: 'ocean' as const,
+  theme: 'ocean' as 'ocean' | 'space' | 'future',
   avatarId: 'c1',
   xp: 150, // Start with some XP for demo
   level: 2,
   streak: 3,
-  completedQuests: [],
-  focusHistory: []
+  completedQuests: [] as string[],
+  focusHistory: [] as FocusSession[]
 };
 
 const GameContext = createContext<GameState | null>(null);
@@ -76,7 +76,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       userName,
       grade,
       focusIssue,
-      theme: getGradeTheme(grade)
+      theme: getGradeTheme(grade) as 'ocean' | 'space' | 'future'
     });
   };
 

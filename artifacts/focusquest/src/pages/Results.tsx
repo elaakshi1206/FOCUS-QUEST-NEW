@@ -14,6 +14,7 @@ export function Results() {
   const [scoreCount, setScoreCount] = useState(0);
 
   useEffect(() => {
+    let timer: ReturnType<typeof setInterval> | undefined;
     const saved = sessionStorage.getItem('lastResult');
     if (saved) {
       const parsed = JSON.parse(saved);
@@ -25,7 +26,7 @@ export function Results() {
       const duration = 1500;
       const stepTime = Math.abs(Math.floor(duration / end));
       
-      const timer = setInterval(() => {
+      timer = setInterval(() => {
         start += 1;
         setScoreCount(start);
         if (start === end) {
@@ -34,10 +35,10 @@ export function Results() {
           confetti({ particleCount: 150, spread: 100, origin: { y: 0.6 } });
         }
       }, stepTime);
-      return () => clearInterval(timer);
     } else {
       setLocation('/map');
     }
+    return () => clearInterval(timer);
   }, []);
 
   if (!result) return null;

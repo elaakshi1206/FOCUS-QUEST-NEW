@@ -27,8 +27,9 @@ export function QuestView() {
   const [timeLeft, setTimeLeft] = useState(15); // 15s per question
 
   useEffect(() => {
+    let interval: ReturnType<typeof setInterval> | undefined;
     if (isPlaying && step === 'video') {
-      const interval = setInterval(() => {
+      interval = setInterval(() => {
         setVideoProgress(prev => {
           if (prev >= 100) {
             clearInterval(interval);
@@ -38,17 +39,18 @@ export function QuestView() {
           return prev + 2; // Simulate 5s video for demo (2% every 100ms)
         });
       }, 100);
-      return () => clearInterval(interval);
     }
+    return () => clearInterval(interval);
   }, [isPlaying, step]);
 
   useEffect(() => {
+    let timer: ReturnType<typeof setInterval> | undefined;
     if (step === 'quiz' && !isAnswered && timeLeft > 0) {
-      const timer = setInterval(() => setTimeLeft(prev => prev - 1), 1000);
-      return () => clearInterval(timer);
+      timer = setInterval(() => setTimeLeft(prev => prev - 1), 1000);
     } else if (timeLeft === 0 && !isAnswered) {
       handleAnswer(-1); // Timeout
     }
+    return () => clearInterval(timer);
   }, [step, isAnswered, timeLeft]);
 
   if (!quest) return <div>Quest not found</div>;
