@@ -2,12 +2,20 @@ import { useState } from 'react';
 import { useGame } from '@/lib/store';
 import { CHARACTERS } from '@/lib/data';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Bell, Flame, Star, Menu, X, ChartBar, Map, Settings, User } from 'lucide-react';
-import { Link } from 'wouter';
+import { Flame, Star, Menu, X, ChartBar, Map, Settings, User, LogOut } from 'lucide-react';
+import { Link, useLocation } from 'wouter';
+import { MascotLogo } from './MascotLogo';
 
 export function TopHUD() {
-  const { userName, level, xp, streak, avatarId, theme } = useGame();
+  const { userName, level, xp, streak, avatarId, logout } = useGame();
+  const [, setLocation] = useLocation();
   const [menuOpen, setMenuOpen] = useState(false);
+
+  const handleSwitchUser = () => {
+    setMenuOpen(false);
+    logout();
+    setLocation('/');
+  };
   
   const currentAvatar = CHARACTERS.find(c => c.id === avatarId) || CHARACTERS[0];
   
@@ -58,6 +66,7 @@ export function TopHUD() {
 
         {/* Stats */}
         <div className="flex items-center gap-3">
+          <MascotLogo className="w-12 h-12" />
           <div className="flex items-center gap-2 bg-background/80 backdrop-blur-md rounded-full px-4 py-2 shadow-lg border border-border/50">
             <Flame className="w-5 h-5 text-orange-500 fill-orange-500 animate-pulse" />
             <span className="font-display font-bold">{streak}</span>
@@ -89,6 +98,13 @@ export function TopHUD() {
               <MenuLink href="/customize" icon={<User />} label="Crew / Avatar" onClick={() => setMenuOpen(false)} />
               <MenuLink href="/analytics" icon={<ChartBar />} label="Focus Stats" onClick={() => setMenuOpen(false)} />
               <MenuLink href="/setup" icon={<Settings />} label="Settings" onClick={() => setMenuOpen(false)} />
+              <button
+                onClick={handleSwitchUser}
+                className="flex items-center gap-3 p-3 rounded-xl hover:bg-red-500/10 text-red-500 font-bold transition-colors w-full text-left"
+              >
+                <LogOut className="w-5 h-5" />
+                Switch User
+              </button>
             </div>
           </motion.div>
         )}

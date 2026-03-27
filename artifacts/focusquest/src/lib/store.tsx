@@ -15,8 +15,7 @@ export interface EquipmentState {
   accessory: string;
 }
 
-export interface GameState {
-  isHydrated: boolean;
+export interface UserProfile {
   userName: string;
   grade: number;
   focusIssue: string;
@@ -30,7 +29,11 @@ export interface GameState {
   selectedSubjects: string[];
   selectedTopics: Record<string, string[]>;
   equipment: EquipmentState;
-  
+}
+
+export interface GameState extends UserProfile {
+  isHydrated: boolean;
+
   // Actions
   setProfile: (name: string, grade: number, issue: string) => void;
   setAvatar: (id: string) => void;
@@ -41,48 +44,92 @@ export interface GameState {
   setSelectedSubjects: (subjects: string[]) => void;
   setSelectedTopics: (topics: Record<string, string[]>) => void;
   setEquipment: (equipment: Partial<EquipmentState>) => void;
+  logout: () => void;
 }
 
-const STORAGE_KEY = 'focusquest_state_v1';
+// ─── Storage keys ───────────────────────────────────────────────
+const PROFILES_KEY = 'focusquest_profiles_v2';
+const ACTIVE_USER_KEY = 'focusquest_active_user';
 
-const defaultState = {
-  userName: '',
-  grade: 3,
-  focusIssue: '',
-  theme: 'ocean' as 'ocean' | 'space' | 'future',
-  avatarId: 'c1',
-  xp: 150,
-  level: 2,
-  streak: 3,
-  completedQuests: [] as string[],
-  focusHistory: [] as FocusSession[],
-  selectedSubjects: [] as string[],
-  selectedTopics: {} as Record<string, string[]>,
-  equipment: { outfit: 'o_outfit1', vehicle: 'o_vehicle1', accessory: 'o_acc1' } as EquipmentState,
-};
+// Returns all saved profiles from localStorage
+export function getAllProfiles(): UserProfile[] {
+  try {
+    const raw = localStorage.getItem(PROFILES_KEY);
+    if (!raw) return [];
+    const map: Record<string, UserProfile> = JSON.parse(raw);
+    return Object.values(map);
+  } catch {
+    return [];
+  }
+}
 
+// Returns the key (lowercase username) for profile storage
+function profileKey(name: string) {
+  return name.trim().toLowerCase();
+}
+
+// ─── Default profile ─────────────────────────────────────────────
+function defaultProfile(userName: string = ''): UserProfile {
+  return {
+    userName,
+    grade: 3,
+    focusIssue: '',
+    theme: 'ocean',
+    avatarId: 'c1',
+    xp: 0,
+    level: 1,
+    streak: 0,
+    completedQuests: [],
+    focusHistory: [],
+    selectedSubjects: [],
+    selectedTopics: {},
+    equipment: { outfit: 'o_outfit1', vehicle: 'o_vehicle1', accessory: 'o_acc1' },
+  };
+}
+
+// ─── Context ─────────────────────────────────────────────────────
 const GameContext = createContext<GameState | null>(null);
 
 export function GameProvider({ children }: { children: React.ReactNode }) {
-  const [state, setState] = useState(defaultState);
+  const [profile, setProfileState] = useState<UserProfile>(defaultProfile());
   const [isHydrated, setIsHydrated] = useState(false);
 
+  // On mount: read active user from localStorage and load their profile
   useEffect(() => {
-    const saved = localStorage.getItem(STORAGE_KEY);
-    if (saved) {
+    const activeUser = localStorage.getItem(ACTIVE_USER_KEY);
+    if (activeUser) {
       try {
-        const parsed = JSON.parse(saved);
-        setState({ ...defaultState, ...parsed });
+        const raw = localStorage.getItem(PROFILES_KEY);
+        if (raw) {
+          const map: Record<string, UserProfile> = JSON.parse(raw);
+          const saved = map[profileKey(activeUser)];
+          if (saved) {
+            setProfileState({ ...defaultProfile(activeUser), ...saved });
+          }
+        }
       } catch (e) {
-        console.error("Failed to load game state", e);
+        console.error('Failed to load user profile', e);
       }
     }
     setIsHydrated(true);
   }, []);
 
-  const saveState = (newState: typeof state) => {
-    setState(newState);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(newState));
+  // Persist the current profile to the profiles map in localStorage
+  const persist = (updater: (prev: UserProfile) => UserProfile) => {
+    setProfileState(prev => {
+      const next = updater(prev);
+      if (!next.userName) return next; // don't save if no user
+      try {
+        const raw = localStorage.getItem(PROFILES_KEY);
+        const map: Record<string, UserProfile> = raw ? JSON.parse(raw) : {};
+        map[profileKey(next.userName)] = next;
+        localStorage.setItem(PROFILES_KEY, JSON.stringify(map));
+        localStorage.setItem(ACTIVE_USER_KEY, next.userName);
+      } catch (e) {
+        console.error('Failed to save profile', e);
+      }
+      return next;
+    });
   };
 
   const setProfile = (userName: string, grade: number, focusIssue: string) => {
@@ -92,25 +139,20 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       : theme === 'space'
       ? { outfit: 's_outfit1', vehicle: 's_vehicle1', accessory: 's_acc1' }
       : { outfit: 'f_outfit1', vehicle: 'f_vehicle1', accessory: 'f_acc1' };
-    const defaultAvatar = theme === 'future' ? 'f1' : 'c1';
-    saveState({ ...state, userName, grade, focusIssue, theme, equipment: defaultEquip, avatarId: defaultAvatar });
+    const defaultAvatar = theme === 'future' ? 'f1' : theme === 'space' ? 's1' : 'c1';
+    persist(prev => ({ ...prev, userName, grade, focusIssue, theme, equipment: defaultEquip, avatarId: defaultAvatar }));
   };
 
-  const setAvatar = (avatarId: string) => {
-    saveState({ ...state, avatarId });
-  };
+  const setAvatar = (avatarId: string) => persist(prev => ({ ...prev, avatarId }));
 
-  const setSelectedSubjects = (selectedSubjects: string[]) => {
-    saveState({ ...state, selectedSubjects });
-  };
+  const setSelectedSubjects = (selectedSubjects: string[]) =>
+    persist(prev => ({ ...prev, selectedSubjects }));
 
-  const setSelectedTopics = (selectedTopics: Record<string, string[]>) => {
-    saveState({ ...state, selectedTopics });
-  };
+  const setSelectedTopics = (selectedTopics: Record<string, string[]>) =>
+    persist(prev => ({ ...prev, selectedTopics }));
 
-  const setEquipment = (partial: Partial<EquipmentState>) => {
-    saveState({ ...state, equipment: { ...state.equipment, ...partial } });
-  };
+  const setEquipment = (partial: Partial<EquipmentState>) =>
+    persist(prev => ({ ...prev, equipment: { ...prev.equipment, ...partial } }));
 
   const calculateLevel = (currentXp: number) => {
     let lvl = 1;
@@ -125,41 +167,48 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
   };
 
   const addXp = (amount: number) => {
-    const newXp = state.xp + amount;
-    const newLevel = calculateLevel(newXp);
-    const levelUp = newLevel > state.level;
-    saveState({ ...state, xp: newXp, level: newLevel });
+    let levelUp = false;
+    let newLevel = 1;
+    persist(prev => {
+      const newXp = prev.xp + amount;
+      newLevel = calculateLevel(newXp);
+      levelUp = newLevel > prev.level;
+      return { ...prev, xp: newXp, level: newLevel };
+    });
     return { levelUp, newLevel };
   };
 
   const completeQuest = (questId: string, score: number, xpEarned: number, subjectId: string) => {
-    const newXp = state.xp + xpEarned;
-    const newLevel = calculateLevel(newXp);
     const session: FocusSession = {
       id: Date.now().toString(),
       date: new Date().toISOString(),
       score, subjectId, xpEarned
     };
-    saveState({
-      ...state,
-      xp: newXp,
-      level: newLevel,
-      completedQuests: Array.from(new Set([...state.completedQuests, questId])),
-      focusHistory: [...state.focusHistory, session].slice(-20)
+    persist(prev => {
+      const newXp = prev.xp + xpEarned;
+      const newLevel = calculateLevel(newXp);
+      return {
+        ...prev,
+        xp: newXp,
+        level: newLevel,
+        completedQuests: Array.from(new Set([...prev.completedQuests, questId])),
+        focusHistory: [...prev.focusHistory, session].slice(-20)
+      };
     });
   };
 
-  const updateStreak = () => {
-    saveState({ ...state, streak: state.streak + 1 });
-  };
+  const updateStreak = () => persist(prev => ({ ...prev, streak: prev.streak + 1 }));
 
-  const resetGame = () => {
-    saveState(defaultState);
+  const resetGame = () => persist(() => defaultProfile(profile.userName));
+
+  const logout = () => {
+    localStorage.removeItem(ACTIVE_USER_KEY);
+    setProfileState(defaultProfile());
   };
 
   return (
     <GameContext.Provider value={{
-      ...state,
+      ...profile,
       isHydrated,
       setProfile,
       setAvatar,
@@ -170,6 +219,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       setSelectedSubjects,
       setSelectedTopics,
       setEquipment,
+      logout,
     }}>
       {children}
     </GameContext.Provider>
@@ -178,6 +228,6 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 
 export function useGame() {
   const ctx = useContext(GameContext);
-  if (!ctx) throw new Error("useGame must be used within GameProvider");
+  if (!ctx) throw new Error('useGame must be used within GameProvider');
   return ctx;
 }

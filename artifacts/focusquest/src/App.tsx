@@ -4,10 +4,13 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { GameProvider } from "@/lib/store";
 import { ThemeWrapper } from "@/components/ThemeWrapper";
+import { AiGuideChat } from "@/components/AiGuideChat";
 import NotFound from "@/pages/not-found";
 
 import { Landing } from "@/pages/Landing";
+import { LoginPage } from "@/pages/LoginPage";
 import { Setup } from "@/pages/Setup";
+import { TimetableBuilder } from "@/pages/TimetableBuilder";
 import { Map } from "@/pages/Map";
 import { QuestList } from "@/pages/QuestList";
 import { QuestView } from "@/pages/QuestView";
@@ -21,8 +24,10 @@ const queryClient = new QueryClient();
 function Router() {
   return (
     <Switch>
-      <Route path="/" component={Landing} />
+      <Route path="/" component={LoginPage} />
+      <Route path="/landing" component={Landing} />
       <Route path="/setup" component={Setup} />
+      <Route path="/timetable" component={TimetableBuilder} />
       <Route path="/map" component={Map} />
       <Route path="/quests/:subjectId" component={QuestList} />
       <Route path="/quest/:subjectId/:questId" component={QuestView} />
@@ -45,6 +50,7 @@ function App() {
               <Router />
             </WouterRouter>
             <Toaster />
+            <AiGuideChat />
           </TooltipProvider>
         </ThemeWrapper>
       </GameProvider>

@@ -9,20 +9,33 @@ export interface Character {
 
 export const CHARACTERS: Character[] = [
   // Ocean theme (1st-4th std)
-  { id: 'c1', name: 'Cabin Boy', theme: 'ocean', requiredXp: 0, imagePath: '/characters/WhatsApp_Image_2026-03-24_at_14.08.22_1774375181412.jpeg', description: 'Ready for adventure!' },
-  { id: 'c2', name: 'Deckhand Girl', theme: 'ocean', requiredXp: 0, imagePath: '/characters/WhatsApp_Image_2026-03-24_at_14.08.24_1774375181418.jpeg', description: 'Swift with the ropes!' },
-  { id: 'c3', name: 'Navigator Boy', theme: 'ocean', requiredXp: 500, imagePath: '/characters/WhatsApp_Image_2026-03-24_at_14.08.23_1774375181416.jpeg', description: 'Always knows the way.' },
-  { id: 'c4', name: 'Pirate Lookout', theme: 'ocean', requiredXp: 500, imagePath: '/characters/WhatsApp_Image_2026-03-24_at_14.08.23_(1)_1774375181414.jpeg', description: 'Eagle eyes.' },
-  { id: 'c5', name: 'Storm Mage', theme: 'ocean', requiredXp: 1200, imagePath: '/characters/WhatsApp_Image_2026-03-24_at_14.08.24_(1)_1774375181417.jpeg', description: 'Controls the lightning.' },
-  { id: 'c6', name: 'Powder Monkey', theme: 'ocean', requiredXp: 1200, imagePath: '/characters/WhatsApp_Image_2026-03-24_at_14.08.26_(1)_1774375168567.jpeg', description: 'Explosive personality!' },
-  { id: 'c7', name: "Cap'n Cookie", theme: 'ocean', requiredXp: 2500, imagePath: '/characters/WhatsApp_Image_2026-03-24_at_14.08.25_(1)_1774375168566.jpeg', description: 'Feeds the crew.' },
-  { id: 'c8', name: 'Bosun Boy', theme: 'ocean', requiredXp: 2500, imagePath: '/characters/WhatsApp_Image_2026-03-24_at_14.08.26_(2)_1774375168568.jpeg', description: 'Strongest on deck.' },
-  { id: 'c9', name: 'Cannoneer', theme: 'ocean', requiredXp: 2500, imagePath: '/characters/WhatsApp_Image_2026-03-24_at_14.08.26_1774375168568.jpeg', description: 'Boom!' },
-  { id: 'c10', name: 'Treasure Hunter', theme: 'ocean', requiredXp: 5000, imagePath: '/characters/WhatsApp_Image_2026-03-24_at_14.08.25_(2)_1774375168567.jpeg', description: 'Finds the gold.' },
-  { id: 'c11', name: 'First Mate', theme: 'ocean', requiredXp: 5000, imagePath: '/characters/WhatsApp_Image_2026-03-24_at_14.08.25_1774375168567.jpeg', description: 'Loyal and fierce.' },
-  { id: 'c12', name: 'Sea King', theme: 'ocean', requiredXp: 5000, imagePath: '/characters/WhatsApp_Image_2026-03-24_at_14.08.27_(1)_1774375168569.jpeg', description: 'Ruler of the waves.' },
-  { id: 'c13', name: 'Pirate Queen', theme: 'ocean', requiredXp: 5000, imagePath: '/characters/WhatsApp_Image_2026-03-24_at_14.08.27_(2)_1774375168569.jpeg', description: 'Legendary captain.' },
-  { id: 'c14', name: 'Ocean Witch', theme: 'ocean', requiredXp: 5000, imagePath: '/characters/WhatsApp_Image_2026-03-24_at_14.08.27_1774375168570.jpeg', description: 'Mystical depths.' },
+  { id: 'c1', name: 'Cabin Boy', theme: 'ocean', requiredXp: 0, imagePath: '/characters/sea/WhatsApp_Image_2026-03-24_at_14.08.22_1774375181412.jpeg', description: 'Ready for adventure!' },
+  { id: 'c2', name: 'Deckhand Girl', theme: 'ocean', requiredXp: 0, imagePath: '/characters/sea/WhatsApp_Image_2026-03-24_at_14.08.24_1774375181418.jpeg', description: 'Swift with the ropes!' },
+  { id: 'c3', name: 'Navigator Boy', theme: 'ocean', requiredXp: 500, imagePath: '/characters/sea/WhatsApp_Image_2026-03-24_at_14.08.23_1774375181416.jpeg', description: 'Always knows the way.' },
+  { id: 'c4', name: 'Pirate Lookout', theme: 'ocean', requiredXp: 500, imagePath: '/characters/sea/WhatsApp_Image_2026-03-24_at_14.08.23_(1)_1774375181414.jpeg', description: 'Eagle eyes.' },
+  { id: 'c5', name: 'Storm Mage', theme: 'ocean', requiredXp: 1200, imagePath: '/characters/sea/WhatsApp_Image_2026-03-24_at_14.08.24_(1)_1774375181417.jpeg', description: 'Controls the lightning.' },
+  { id: 'c6', name: 'Powder Monkey', theme: 'ocean', requiredXp: 1200, imagePath: '/characters/sea/WhatsApp_Image_2026-03-24_at_14.08.26_(1)_1774375168567.jpeg', description: 'Explosive personality!' },
+  { id: 'c7', name: "Cap'n Cookie", theme: 'ocean', requiredXp: 2500, imagePath: '/characters/sea/WhatsApp_Image_2026-03-24_at_14.08.25_(1)_1774375168566.jpeg', description: 'Feeds the crew.' },
+  { id: 'c8', name: 'Bosun Boy', theme: 'ocean', requiredXp: 2500, imagePath: '/characters/sea/WhatsApp_Image_2026-03-24_at_14.08.26_(2)_1774375168568.jpeg', description: 'Strongest on deck.' },
+  { id: 'c9', name: 'Cannoneer', theme: 'ocean', requiredXp: 2500, imagePath: '/characters/sea/WhatsApp_Image_2026-03-24_at_14.08.26_1774375168568.jpeg', description: 'Boom!' },
+  { id: 'c10', name: 'Treasure Hunter', theme: 'ocean', requiredXp: 5000, imagePath: '/characters/sea/WhatsApp_Image_2026-03-24_at_14.08.25_(2)_1774375168567.jpeg', description: 'Finds the gold.' },
+  { id: 'c11', name: 'First Mate', theme: 'ocean', requiredXp: 5000, imagePath: '/characters/sea/WhatsApp_Image_2026-03-24_at_14.08.25_1774375168567.jpeg', description: 'Loyal and fierce.' },
+  { id: 'c12', name: 'Sea King', theme: 'ocean', requiredXp: 5000, imagePath: '/characters/sea/WhatsApp_Image_2026-03-24_at_14.08.27_(1)_1774375168569.jpeg', description: 'Ruler of the waves.' },
+  { id: 'c13', name: 'Pirate Queen', theme: 'ocean', requiredXp: 5000, imagePath: '/characters/sea/WhatsApp_Image_2026-03-24_at_14.08.27_(2)_1774375168569.jpeg', description: 'Legendary captain.' },
+  { id: 'c14', name: 'Ocean Witch', theme: 'ocean', requiredXp: 5000, imagePath: '/characters/sea/WhatsApp_Image_2026-03-24_at_14.08.27_1774375168570.jpeg', description: 'Mystical depths.' },
+  // Space theme (5th-7th std)
+  { id: 's1', name: 'Astro Rookie', theme: 'space', requiredXp: 0, imagePath: '/characters/space/WhatsApp Image 2026-03-24 at 15.31.46 (1).jpeg', description: 'Fresh out of the academy.' },
+  { id: 's2', name: 'Star Cadet', theme: 'space', requiredXp: 200, imagePath: '/characters/space/WhatsApp Image 2026-03-24 at 15.31.46.jpeg', description: 'Ready for the stars.' },
+  { id: 's3', name: 'Galactic Explorer', theme: 'space', requiredXp: 500, imagePath: '/characters/space/WhatsApp Image 2026-03-24 at 15.31.47.jpeg', description: 'Seeking new worlds.' },
+  { id: 's4', name: 'Orbit Ranger', theme: 'space', requiredXp: 800, imagePath: '/characters/space/WhatsApp Image 2026-03-24 at 15.31.48 (1).jpeg', description: 'Patrolling the asteroid belt.' },
+  { id: 's5', name: 'Nebula Pilot', theme: 'space', requiredXp: 1200, imagePath: '/characters/space/WhatsApp Image 2026-03-24 at 15.31.48.jpeg', description: 'Master of light speed.' },
+  { id: 's6', name: 'Cosmic Voyager', theme: 'space', requiredXp: 1600, imagePath: '/characters/space/WhatsApp Image 2026-03-24 at 15.31.49.jpeg', description: 'Traversing the deep void.' },
+  { id: 's7', name: 'Meteor Knight', theme: 'space', requiredXp: 2000, imagePath: '/characters/space/WhatsApp Image 2026-03-24 at 15.31.50 (1).jpeg', description: 'Defender of the galaxy.' },
+  { id: 's8', name: 'Nova Captain', theme: 'space', requiredXp: 2500, imagePath: '/characters/space/WhatsApp Image 2026-03-24 at 15.31.50 (2).jpeg', description: 'Commanding the flagship.' },
+  { id: 's9', name: 'Quantum Engineer', theme: 'space', requiredXp: 3000, imagePath: '/characters/space/WhatsApp Image 2026-03-24 at 15.31.51 (1).jpeg', description: 'Fixes any hyperdrive.' },
+  { id: 's10', name: 'Solar Guardian', theme: 'space', requiredXp: 3500, imagePath: '/characters/space/WhatsApp Image 2026-03-24 at 15.31.51 (2).jpeg', description: 'Powered by a dying star.' },
+  { id: 's11', name: 'Void Walker', theme: 'space', requiredXp: 4000, imagePath: '/characters/space/WhatsApp Image 2026-03-24 at 15.31.51.jpeg', description: 'Steps through dimensions.' },
+  { id: 's12', name: 'Starfleet Admiral', theme: 'space', requiredXp: 5000, imagePath: '/characters/space/WhatsApp Image 2026-03-24 at 15.31.52.jpeg', description: 'Legendary space commander.' },
   // Future theme (8th-10th std)
   { id: 'f1', name: 'Angel Warrior', theme: 'future', requiredXp: 0, imagePath: '/characters/future/angel_warrior.png', description: 'Celestial protector of the digital realm.' },
   { id: 'f2', name: 'Neon Sniper', theme: 'future', requiredXp: 0, imagePath: '/characters/future/neon_sniper.png', description: 'Silent shadow with deadly precision.' },
@@ -64,12 +77,15 @@ export interface Quest {
   timeMins: number;
   notes: string[];
   quiz: QuizQuestion[];
+  /** YouTube video ID for the lesson video (optional) */
+  videoId?: string;
 }
 
 export const QUESTS: Quest[] = [
   // ======== MATH ========
   {
     id: 'math_1', subjectId: 'math', title: 'Fractions Intro', difficulty: 1, xpReward: 50, requiredXp: 0, timeMins: 5,
+    videoId: '362JVVvgYPE',
     notes: [
       "A fraction represents a part of a whole.",
       "The top number is the Numerator — how many parts we have.",
@@ -167,6 +183,7 @@ export const QUESTS: Quest[] = [
   // ======== ENGLISH ========
   {
     id: 'eng_1', subjectId: 'english', title: 'Parts of Speech', difficulty: 1, xpReward: 50, requiredXp: 0, timeMins: 5,
+    videoId: '_PqkZDSnZFM',
     notes: [
       "Noun: A person, place, thing, or idea (e.g., dog, school, love).",
       "Verb: An action or state (e.g., run, jump, is, feels).",
@@ -381,26 +398,63 @@ export const EQUIPMENT: Equipment[] = [
 // ======== VIDEO TIMESTAMPS FOR SMART FEEDBACK ========
 export interface VideoTimestamp {
   questionId: string;
-  startTime: string;
-  endTime: string;
+  startTime: string;   // "MM:SS"
+  endTime: string;     // "MM:SS"
   label: string;
+  /** YouTube video ID — used to build the watch link */
+  videoId?: string;
 }
 
+// Scratch Garden – "Fractions! | Mini Math Movies" (362JVVvgYPE)
+// Timestamps are mapped to question IDs in the mathFractions bank (mf1-mf12)
+const FRACTIONS_VIDEO = '362JVVvgYPE';
+// Missing parts of speech video
+const PARTS_OF_SPEECH_VIDEO = '_PqkZDSnZFM';
+
 export const VIDEO_TIMESTAMPS: VideoTimestamp[] = [
-  { questionId: 'mq1', startTime: '00:30', endTime: '01:15', label: 'Fraction terminology' },
-  { questionId: 'mq2', startTime: '01:20', endTime: '02:00', label: 'Parts of a fraction' },
-  { questionId: 'mq3', startTime: '02:15', endTime: '02:45', label: 'Comparing fractions' },
-  { questionId: 'mq4', startTime: '03:00', endTime: '03:40', label: 'Equivalent fractions' },
+  // ── Fractions Intro (math_1) – all tied to the Scratch Garden video ──────
+  { questionId: 'mf1',  startTime: '00:30', endTime: '01:10', label: 'What is a Numerator?',              videoId: FRACTIONS_VIDEO },
+  { questionId: 'mq1',  startTime: '00:30', endTime: '01:10', label: 'What is a Numerator?',              videoId: FRACTIONS_VIDEO },
+  { questionId: 'mf2',  startTime: '00:50', endTime: '01:30', label: 'Parts of a Whole (pizza example)', videoId: FRACTIONS_VIDEO },
+  { questionId: 'mq2',  startTime: '00:50', endTime: '01:30', label: 'Parts of a Whole (pizza example)', videoId: FRACTIONS_VIDEO },
+  { questionId: 'mf3',  startTime: '02:40', endTime: '03:20', label: 'Equivalent Fractions',              videoId: FRACTIONS_VIDEO },
+  { questionId: 'mq4',  startTime: '02:40', endTime: '03:20', label: 'Equivalent Fractions',              videoId: FRACTIONS_VIDEO },
+  { questionId: 'mf4',  startTime: '00:45', endTime: '01:15', label: 'What is a Denominator?',            videoId: FRACTIONS_VIDEO },
+  { questionId: 'mf5',  startTime: '01:45', endTime: '02:25', label: 'Comparing Fractions',               videoId: FRACTIONS_VIDEO },
+  { questionId: 'mq3',  startTime: '01:45', endTime: '02:25', label: 'Comparing Fractions',               videoId: FRACTIONS_VIDEO },
+  { questionId: 'mf6',  startTime: '02:50', endTime: '03:30', label: 'Simplifying Fractions',             videoId: FRACTIONS_VIDEO },
+  { questionId: 'mf7',  startTime: '00:55', endTime: '01:35', label: 'Fractions of a Pizza',              videoId: FRACTIONS_VIDEO },
+  { questionId: 'mf8',  startTime: '01:50', endTime: '02:30', label: 'Ordering Fractions',                videoId: FRACTIONS_VIDEO },
+  { questionId: 'mf9',  startTime: '03:10', endTime: '03:50', label: 'Fractions as Decimals',             videoId: FRACTIONS_VIDEO },
+  { questionId: 'mf10', startTime: '02:45', endTime: '03:25', label: 'Equivalent Fractions – Deep Dive',  videoId: FRACTIONS_VIDEO },
+  { questionId: 'mf11', startTime: '03:20', endTime: '04:00', label: 'Fraction of a Number',              videoId: FRACTIONS_VIDEO },
+  { questionId: 'mf12', startTime: '02:50', endTime: '03:30', label: 'Simplifying: 2/4 = 1/2',           videoId: FRACTIONS_VIDEO },
+
+  // ── Parts of Speech (eng_1) ──────
+  { questionId: 'eq1', startTime: '01:00', endTime: '01:45', label: 'Verbs explained', videoId: PARTS_OF_SPEECH_VIDEO },
+  { questionId: 'ep1', startTime: '01:00', endTime: '01:45', label: 'Verbs explained', videoId: PARTS_OF_SPEECH_VIDEO },
+  { questionId: 'eq2', startTime: '01:50', endTime: '02:30', label: 'Adjectives explained', videoId: PARTS_OF_SPEECH_VIDEO },
+  { questionId: 'ep2', startTime: '01:50', endTime: '02:30', label: 'Adjectives explained', videoId: PARTS_OF_SPEECH_VIDEO },
+  { questionId: 'eq3', startTime: '02:30', endTime: '03:10', label: 'Pronouns explained', videoId: PARTS_OF_SPEECH_VIDEO },
+  { questionId: 'ep3', startTime: '02:30', endTime: '03:10', label: 'Pronouns explained', videoId: PARTS_OF_SPEECH_VIDEO },
+  { questionId: 'eq4', startTime: '00:30', endTime: '01:00', label: 'Nouns explained', videoId: PARTS_OF_SPEECH_VIDEO },
+  { questionId: 'ep4', startTime: '00:30', endTime: '01:00', label: 'Nouns explained', videoId: PARTS_OF_SPEECH_VIDEO },
+  { questionId: 'ep5', startTime: '00:30', endTime: '03:10', label: 'Parts of Speech overview', videoId: PARTS_OF_SPEECH_VIDEO },
+  { questionId: 'ep6', startTime: '02:30', endTime: '03:10', label: 'Pronouns explained', videoId: PARTS_OF_SPEECH_VIDEO },
+  { questionId: 'ep7', startTime: '03:15', endTime: '03:45', label: 'Adverbs explained', videoId: PARTS_OF_SPEECH_VIDEO },
+  { questionId: 'ep8', startTime: '01:00', endTime: '01:45', label: 'Verbs explained', videoId: PARTS_OF_SPEECH_VIDEO },
+  { questionId: 'ep9', startTime: '04:00', endTime: '04:30', label: 'Sentence structure', videoId: PARTS_OF_SPEECH_VIDEO },
+  { questionId: 'ep10', startTime: '03:15', endTime: '03:45', label: 'Adverbs explained', videoId: PARTS_OF_SPEECH_VIDEO },
+
+  // ── Legacy question IDs from old quizzes (kept for compatibility) ─────────
   { questionId: 'mq5', startTime: '00:45', endTime: '01:30', label: 'Polygon sides' },
   { questionId: 'mq6', startTime: '01:35', endTime: '02:10', label: 'What is a polygon' },
   { questionId: 'mq7', startTime: '02:30', endTime: '03:15', label: 'Triangle angles' },
   { questionId: 'mq8', startTime: '03:20', endTime: '04:00', label: 'Types of quadrilaterals' },
   { questionId: 'sq1', startTime: '00:30', endTime: '01:20', label: 'Inner planets' },
   { questionId: 'sq2', startTime: '01:30', endTime: '02:15', label: 'Gas giants' },
-  { questionId: 'sq3', startTime: '02:20', endTime: '03:00', label: 'Saturn\'s rings' },
+  { questionId: 'sq3', startTime: '02:20', endTime: '03:00', label: "Saturn's rings" },
   { questionId: 'sq4', startTime: '03:10', endTime: '03:50', label: 'Number of planets' },
-  { questionId: 'eq1', startTime: '01:00', endTime: '01:45', label: 'Verbs explained' },
-  { questionId: 'eq2', startTime: '01:50', endTime: '02:30', label: 'Adjectives explained' },
   { questionId: 'lq1', startTime: '00:30', endTime: '01:15', label: 'Arithmetic sequences' },
   { questionId: 'lq7', startTime: '00:20', endTime: '01:00', label: 'What is an algorithm' },
 ];
