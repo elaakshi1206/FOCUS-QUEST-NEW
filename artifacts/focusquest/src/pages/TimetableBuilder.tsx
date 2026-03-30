@@ -335,10 +335,10 @@ export function TimetableBuilder() {
             <span>{cfg.badge}</span>
           </div>
 
-          <h1 className="text-4xl md:text-5xl font-display font-bold mb-3 gradient-text">
+          <h1 className="text-4xl md:text-5xl font-display font-bold mb-3 text-white drop-shadow-md">
             Let's Build Your Perfect Timetable! ✨
           </h1>
-          <p className="text-lg text-muted-foreground max-w-xl mx-auto font-bold">
+          <p className="text-lg text-white/90 max-w-xl mx-auto font-bold drop-shadow-md">
             Tell us a few things about your day and we'll create a super fun study plan for you.
           </p>
 
@@ -595,7 +595,7 @@ export function TimetableBuilder() {
             >
               <div className="flex items-center justify-between mb-6 flex-wrap gap-3">
                 <div>
-                  <h2 className="text-2xl font-display font-bold gradient-text">Your Daily Focus Quest Plan {cfg.mascot}</h2>
+                  <h2 className="text-2xl font-display font-bold text-white drop-shadow-md">Your Daily Focus Quest Plan {cfg.mascot}</h2>
                   <p className="text-sm text-muted-foreground">Tap any Focus Quest block to self-rate after completing!</p>
                 </div>
                 <span className="text-sm font-bold px-3 py-1 rounded-full bg-primary/20 border border-primary/30">

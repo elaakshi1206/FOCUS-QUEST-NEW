@@ -114,15 +114,13 @@ export function LoginPage() {
           </motion.div>
 
           {/* App name */}
-          <h1
-            className="text-5xl sm:text-6xl font-black text-white mb-2 leading-none"
-            style={{
-              fontFamily: "'Fredoka', 'Nunito', sans-serif",
-              textShadow: '0 0 40px rgba(46,196,255,0.55), 0 4px 0 rgba(0,0,0,0.25)',
-            }}
-          >
-            Focus<span className="text-yellow-300">Quest</span>
-          </h1>
+          <div className="flex justify-center mb-2">
+            <img 
+              src="/background/bg_logo-removebg-preview.png" 
+              alt="Focus Quest" 
+              className="h-40 sm:h-48 w-auto object-contain drop-shadow-[0_0_30px_rgba(46,196,255,0.4)]" 
+            />
+          </div>
 
           {/* Tagline */}
           <motion.p

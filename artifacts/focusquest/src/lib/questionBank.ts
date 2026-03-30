@@ -14,7 +14,7 @@
  *   image      – emoji/image prompt + MCQ
  */
 
-export type QuestionType = 'mcq' | 'truefalse' | 'fillblank' | 'match' | 'sequence' | 'image';
+export type QuestionType = 'mcq' | 'truefalse' | 'fillblank' | 'match' | 'sequence' | 'image' | 'voice';
 
 export interface MatchPair {
   left: string;
@@ -40,6 +40,8 @@ export interface RichQuestion {
   difficulty: 1 | 2 | 3;  // 1=easy, 2=medium, 3=hard
   // optional video timestamp link
   videoRef?: { startTime: string; endTime: string; label: string };
+  // Expected keyword or exact answer for the voice STT Evaluator
+  expectedText?: string;
 }
 
 // ─── MATH: Fractions ──────────────────────────────────────────────────────────
@@ -56,6 +58,7 @@ export const mathFractions: RichQuestion[] = [
   { id:'mf10', type:'mcq', difficulty:3, question:'Which of these is NOT equivalent to 2/3?', options:['4/6','6/9','8/12','6/8'], correctIndex:3, hint:'Simplify each fraction.' },
   { id:'mf11', type:'fillblank', difficulty:3, question:'What fraction of 12 is 4? Write as a fraction (e.g. 1/3).', answer:'1/3', hint:'4 out of 12. Simplify!' },
   { id:'mf12', type:'truefalse', difficulty:2, question:'2/4 = 1/2 is a true statement.', options:['True','False'], correctIndex:0, hint:'Simplify 2/4 by dividing top and bottom by 2.' },
+  { id:'mf13', type:'voice', difficulty:1, question:'Say the word: Denominator', expectedText:'Denominator', hint:'Tap mic and read the word aloud.' },
 ];
 
 // ─── MATH: Geometry ───────────────────────────────────────────────────────────
@@ -132,6 +135,8 @@ export const engSpeech: RichQuestion[] = [
   { id:'ep8', type:'truefalse', difficulty:2, question:"'Run' can only be a verb, never a noun.", options:['True','False'], correctIndex:1, hint:"'A morning run' — here 'run' is a noun!" },
   { id:'ep9', type:'sequence', difficulty:3, question:'Rearrange to form a correct sentence:', sequence:['The','brave','knight','slayed','the','dragon'], hint:'Article → adjective → noun → verb → article → noun.' },
   { id:'ep10', type:'mcq', difficulty:3, question:"Which sentence uses an adverb correctly?", options:["She is a very tall girl.","She is a tall very girl.","She runs slow.","He eats quick food."], correctIndex:0, hint:"'Very' modifies the adjective 'tall'." },
+  { id:'ep11', type:'voice', difficulty:2, question:'Make a sentence using the word "because".', expectedText:'because', hint:'Make sure to include the word "because".' },
+  { id:'ep12', type:'voice', difficulty:1, question:'Read this sentence aloud: The quick brown fox jumps over the lazy dog.', expectedText:'The quick brown fox jumps over the lazy dog', hint:'Read clearly.' },
 ];
 
 // ─── LOGIC: Patterns & Sequences ──────────────────────────────────────────────

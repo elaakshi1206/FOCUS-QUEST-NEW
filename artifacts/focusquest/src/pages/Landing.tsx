@@ -132,13 +132,11 @@ export function Landing() {
             <Gamepad2 className="w-4 h-4" /> Gamified Learning Platform
           </motion.div>
           <div className="flex flex-col items-center">
-            <MascotLogo className="w-24 h-24 mb-6 shadow-2xl scale-125" />
-            <h1
-              className="text-6xl font-bold text-white mb-2"
-              style={{ textShadow: '0 0 40px rgba(46,196,255,0.6), 0 4px 0 rgba(0,0,0,0.3)', fontFamily: "'Fredoka', sans-serif" }}
-            >
-              Focus<span className="text-yellow-300">Quest</span>
-            </h1>
+            <img 
+              src="/background/bg_logo-removebg-preview.png" 
+              alt="Focus Quest" 
+              className="h-48 w-auto mb-6 object-contain drop-shadow-[0_0_30px_rgba(46,196,255,0.4)]" 
+            />
           </div>
           <p className="text-white/80 font-bold text-lg">Who's playing today?</p>
         </div>

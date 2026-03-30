@@ -30,7 +30,9 @@ import confetti from 'canvas-confetti';
 import { useQuiz } from '@/hooks/useQuiz';
 import { getMascotThemeProps, VIDEO_TIMESTAMPS } from '@/lib/data';
 import { useGame } from '@/lib/store';
-import { Rewind, CheckCircle2, XCircle, ChevronRight, Youtube } from 'lucide-react';
+import { Rewind, CheckCircle2, XCircle, ChevronRight, Youtube, Loader2 } from 'lucide-react';
+import { evaluateVoiceAnswer } from '@/lib/evaluateVoiceAnswer';
+import { VoiceInput } from '@/components/VoiceInput';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 interface Props {
@@ -463,6 +465,93 @@ function SequenceQuestion({ question, order, onMove, onSubmit, isAnswered, isCor
   );
 }
 
+// ─── Voice Input Question ─────────────────────────────────────────────────────
+function VoiceQuestion({ question, attemptCount, voiceFeedback, onSubmit, isAnswered, isCorrect }: {
+  question: import('@/hooks/useQuiz').ShuffledQuestion;
+  attemptCount: number;
+  voiceFeedback: string | null;
+  onSubmit: (correct: boolean, isPartial: boolean, feedback: string) => void;
+  isAnswered: boolean;
+  isCorrect: boolean | null;
+}) {
+  const [isEvaluating, setIsEvaluating] = useState(false);
+
+  /**
+   * Called by VoiceInput ONLY when:
+   *   - transcript is non-empty
+   *   - confidence is above the threshold (0.7)
+   * So at this point, we can safely run validation without worrying about
+   * STT errors interfering.
+   */
+  const handleTranscript = async (transcript: string) => {
+    setIsEvaluating(true);
+    try {
+      const result = await evaluateVoiceAnswer(
+        question.question,
+        transcript,
+        attemptCount,
+        question.expectedText,
+        question.id,   // audioInputId – links log entries to the question
+        1.0,           // confidence already gated by VoiceInput; pass 1.0 as post-gate value
+      );
+
+      const correct = result.status === 'CORRECT';
+      const partial = result.status === 'PARTIAL';
+
+      // If this is an STT-layer error (e.g. API unreachable), VoiceInput already
+      // shows its own message. We still call onSubmit so attempt tracking works,
+      // but the voiceFeedback won't be shown as a second overlay.
+      onSubmit(correct, partial, result.isSttError ? '' : result.feedback);
+    } catch (e) {
+      onSubmit(false, false, "Could not reach evaluation server. Please try again.");
+    } finally {
+      setIsEvaluating(false);
+    }
+  };
+
+  return (
+    <div className="space-y-4 flex flex-col items-center">
+      {/* Only show voiceFeedback ONCE — the orange box is for validation errors only.
+          STT errors are already displayed inside VoiceInput itself. */}
+      {voiceFeedback && voiceFeedback.trim().length > 0 && !isAnswered && (
+        <motion.div
+           initial={{ opacity: 0, y: -10 }}
+           animate={{ opacity: 1, y: 0 }}
+           className="w-full p-4 mb-2 rounded-2xl bg-orange-500/20 text-orange-200 border border-orange-500/40 text-center font-bold"
+        >
+          {voiceFeedback}
+        </motion.div>
+      )}
+
+      {isEvaluating ? (
+         <div className="flex flex-col items-center justify-center p-12 gap-4">
+           <Loader2 className="w-12 h-12 text-blue-400 animate-spin" />
+           <p className="text-blue-200 font-bold animate-pulse">Evaluating your answer...</p>
+         </div>
+      ) : (
+         <VoiceInput
+           onTranscriptComplete={handleTranscript}
+           disabled={isAnswered}
+           audioInputId={question.id}
+         />
+      )}
+
+      {isAnswered && (
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className={`w-full p-4 rounded-2xl font-bold text-center ${isCorrect ? 'bg-green-500/20 text-green-700 dark:text-green-300' : 'bg-red-500/20 text-red-700 dark:text-red-300'}`}
+        >
+          {voiceFeedback && voiceFeedback.trim().length > 0
+            ? voiceFeedback
+            : isCorrect ? '✅ Perfect!' : '❌ Incorrect. Please try again.'}
+        </motion.div>
+      )}
+    </div>
+  );
+}
+
+
 // ─── Anti-cheat modal ─────────────────────────────────────────────────────────
 function AntiCheatModal({ penaltyCount, theme, onDismiss }: {
   penaltyCount: number;
@@ -592,6 +681,8 @@ export function QuizEngine({ questId, focusLevel = 50, onComplete }: Props) {
       if (current.type === 'fillblank') return state.fillInput.trim().toLowerCase() === (current.answer ?? '').trim().toLowerCase();
       if (current.type === 'match') return (current.pairs ?? []).every(p => state.matchSelections[p.left] === p.right);
       if (current.type === 'sequence') return JSON.stringify(state.sequenceOrder) === JSON.stringify(current.sequence);
+      // Voice questions: selectedAnswer is set to 'CORRECT' | 'PARTIALLY CORRECT' | 'INCORRECT'
+      if (current.type === 'voice') return state.selectedAnswer === 'CORRECT';
       const idx = parseInt(state.selectedAnswer ?? '-1');
       return idx === current.mappedCorrectIndex;
     })();
@@ -616,6 +707,7 @@ export function QuizEngine({ questId, focusLevel = 50, onComplete }: Props) {
     match: '🔗 Match the Pair',
     sequence: '🔢 Put in Order',
     image: '🖼️ Image Question',
+    voice: '🎤 Say It Aloud',
   };
 
   return (
@@ -649,7 +741,7 @@ export function QuizEngine({ questId, focusLevel = 50, onComplete }: Props) {
           >
             {typeLabel[current.type]}
           </motion.span>
-          <CountdownTimer seconds={state.timeLeft} />
+          {current.type !== 'voice' && <CountdownTimer seconds={state.timeLeft} />}
         </div>
 
         {/* Floating progress */}
@@ -737,6 +829,16 @@ export function QuizEngine({ questId, focusLevel = 50, onComplete }: Props) {
                 order={state.sequenceOrder}
                 onMove={actions.moveSequenceItem}
                 onSubmit={actions.submitSequence}
+                isAnswered={state.isAnswered}
+                isCorrect={state.isAnswered ? wasCorrect : null}
+              />
+            )}
+            {current.type === 'voice' && (
+              <VoiceQuestion
+                question={current}
+                attemptCount={state.attemptCount}
+                voiceFeedback={state.voiceFeedback}
+                onSubmit={actions.submitVoice}
                 isAnswered={state.isAnswered}
                 isCorrect={state.isAnswered ? wasCorrect : null}
               />

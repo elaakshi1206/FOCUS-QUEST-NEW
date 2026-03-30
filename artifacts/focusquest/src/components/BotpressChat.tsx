@@ -16,20 +16,6 @@ export function BotpressChat() {
   const { emoji, name: mascotName } = getMascotThemeProps(gradeTheme);
 
   useEffect(() => {
-    // 1. Inject Botpress Scripts if not present
-    if (!document.getElementById('botpress-inject')) {
-      const injectScript = document.createElement('script');
-      injectScript.id = 'botpress-inject';
-      injectScript.src = "https://cdn.botpress.cloud/webchat/v3.6/inject.js";
-      document.body.appendChild(injectScript);
-
-      const configScript = document.createElement('script');
-      configScript.id = 'botpress-config';
-      configScript.src = "https://files.bpcontent.cloud/2026/03/30/10/20260330104644-EN00AXJU.js";
-      configScript.defer = true;
-      document.body.appendChild(configScript);
-    }
-
     // 2. Sync User Context when Botpress is ready
     const syncUser = () => {
       if (window.botpress && typeof window.botpress.setUserData === 'function') {

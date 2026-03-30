@@ -41,6 +41,8 @@ export interface QuizState {
   matchSelections: Record<string, string>;   // left → selected right
   fillInput: string;
   sequenceOrder: string[];
+  attemptCount: number;
+  voiceFeedback: string | null;
 }
 
 export interface QuizActions {
@@ -51,6 +53,7 @@ export interface QuizActions {
   setMatchSelection: (left: string, right: string) => void;
   submitSequence: () => void;
   moveSequenceItem: (from: number, to: number) => void;
+  submitVoice: (correct: boolean, isPartial: boolean, feedback: string) => void;
   nextQuestion: () => void;
   dismissAntiCheat: () => void;
 }
@@ -119,6 +122,8 @@ export function useQuiz(questId: string, focusLevel = 50, onComplete?: (score: n
     matchSelections: {},
     fillInput: '',
     sequenceOrder: [],
+    attemptCount: 1,
+    voiceFeedback: null,
   }));
 
   // Expose mutable ref for timer callback to access latest isAnswered
@@ -137,7 +142,8 @@ export function useQuiz(questId: string, focusLevel = 50, onComplete?: (score: n
 
   // ── Countdown timer ─────────────────────────────────────────────────────────
   useEffect(() => {
-    if (!current || state.isAnswered) return;
+    // Voice questions don't have a countdown — the mic handles timing itself
+    if (!current || state.isAnswered || current.type === 'voice') return;
     if (state.timeLeft <= 0) {
       // Time up → mark wrong
       _recordAnswer(false, '⏰ TIME UP');
@@ -150,7 +156,7 @@ export function useQuiz(questId: string, focusLevel = 50, onComplete?: (score: n
       });
     }, 1000);
     return () => clearInterval(id);
-  }, [state.currentIndex, state.isAnswered, state.timeLeft]);
+  }, [state.currentIndex, state.isAnswered, state.timeLeft, current?.type]);
 
   // ── Anti-cheat: tab / window blur ───────────────────────────────────────────
   useEffect(() => {
@@ -171,6 +177,8 @@ export function useQuiz(questId: string, focusLevel = 50, onComplete?: (score: n
         matchSelections: {},
         fillInput: '',
         sequenceOrder: reshuffled[0]?.shuffledSequence ?? [],
+        attemptCount: 1,
+        voiceFeedback: null,
       }));
     };
     window.addEventListener('blur', onBlur);
@@ -236,6 +244,38 @@ export function useQuiz(questId: string, focusLevel = 50, onComplete?: (score: n
     _recordAnswer(correct, JSON.stringify(state.sequenceOrder));
   }, [state.isAnswered, state.sequenceOrder, current]);
 
+  const submitVoice = useCallback((correct: boolean, isPartial: boolean, feedback: string) => {
+    if (state.isAnswered) return;
+    
+    // Attempt logic:
+    // If correct -> immediately record correct
+    // If not correct & attemptCount == 1 -> increment attempt, show feedback, DON'T flag as answered yet
+    // If not correct & attemptCount >= 2 -> record wrong
+    
+    setState(s => {
+      if (!correct && s.attemptCount < 2) {
+        // Retry path
+        return {
+          ...s,
+          attemptCount: s.attemptCount + 1,
+          voiceFeedback: feedback,
+        };
+      } else {
+        // Final answer path
+        const newWrong = correct ? s.wrongIds : [...s.wrongIds, s.questions[s.currentIndex].id];
+        return {
+          ...s,
+          isAnswered: true,
+          selectedAnswer: isPartial ? 'PARTIALLY CORRECT' : (correct ? 'CORRECT' : 'INCORRECT'),
+          score: correct ? s.score + 1 : s.score,
+          wrongIds: newWrong,
+          showHint: !correct,
+          voiceFeedback: feedback,
+        };
+      }
+    });
+  }, [state.isAnswered]);
+
   const nextQuestion = useCallback(() => {
     setState(s => {
       const nextIdx = s.currentIndex + 1;
@@ -254,6 +294,8 @@ export function useQuiz(questId: string, focusLevel = 50, onComplete?: (score: n
         matchSelections: {},
         fillInput: '',
         sequenceOrder: nextQ.type === 'sequence' ? (nextQ.shuffledSequence ?? []) : [],
+        attemptCount: 1,
+        voiceFeedback: null,
       };
     });
   }, []);
@@ -274,5 +316,5 @@ export function useQuiz(questId: string, focusLevel = 50, onComplete?: (score: n
     setState(s => ({ ...s, antiCheatTriggered: false }));
   }, []);
 
-  return { state, current, actions: { selectMcq, setFillInput, submitFill, setMatchSelection, submitMatch, moveSequenceItem, submitSequence, nextQuestion, dismissAntiCheat } };
+  return { state, current, actions: { selectMcq, setFillInput, submitFill, setMatchSelection, submitMatch, moveSequenceItem, submitSequence, submitVoice, nextQuestion, dismissAntiCheat } };
 }

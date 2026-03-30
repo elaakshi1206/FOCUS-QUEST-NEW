@@ -8,6 +8,7 @@ import { BotpressChat } from "@/components/BotpressChat";
 import NotFound from "@/pages/not-found";
 
 
+import { IntroPage } from "@/pages/IntroPage";
 import { Landing } from "@/pages/Landing";
 import { LoginPage } from "@/pages/LoginPage";
 import { Setup } from "@/pages/Setup";
@@ -25,7 +26,8 @@ const queryClient = new QueryClient();
 function Router() {
   return (
     <Switch>
-      <Route path="/" component={LoginPage} />
+      <Route path="/" component={IntroPage} />
+      <Route path="/login" component={LoginPage} />
       <Route path="/landing" component={Landing} />
       <Route path="/setup" component={Setup} />
       <Route path="/timetable" component={TimetableBuilder} />

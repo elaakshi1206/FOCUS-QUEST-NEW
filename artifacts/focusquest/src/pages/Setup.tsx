@@ -4,15 +4,15 @@ import { useLocation } from 'wouter';
 import { useGame } from '@/lib/store';
 import { Mascot } from '@/components/Mascot';
 import { AnimatedBackground } from '@/components/AnimatedBackground';
-import { SUBJECTS, TOPICS, FOCUS_ISSUES } from '@/lib/data';
+import { SUBJECTS, TOPICS } from '@/lib/data';
 import { Check } from 'lucide-react';
 
-const TOTAL_STEPS = 3;
+const TOTAL_STEPS = 2;
 
 const gradeGroups = [
-  { label: '1st – 4th Standard', range: '🏴‍☠️ Ocean Pirate Adventure', grades: [1, 2, 3, 4], theme: 'ocean', emoji: '🌊' },
-  { label: '5th – 7th Standard', range: '🚀 Space Explorer', grades: [5, 6, 7], theme: 'space', emoji: '🪐' },
-  { label: '8th – 10th Standard', range: '🤖 Futuristic Mind Lab', grades: [8, 9, 10], theme: 'future', emoji: '⚡' },
+  { label: '1st – 4th Standard', range: '🏴‍☠️ Ocean Pirate Adventure', worldName: 'Ocean Pirate Adventure', grades: [1, 2, 3, 4], theme: 'ocean', emoji: '🌊' },
+  { label: '5th – 7th Standard', range: '🚀 Space Explorer', worldName: 'Space Explorer', grades: [5, 6, 7], theme: 'space', emoji: '🪐' },
+  { label: '8th – 10th Standard', range: '🤖 Futuristic Mind Lab', worldName: 'Futuristic Mind Lab', grades: [8, 9, 10], theme: 'future', emoji: '⚡' },
 ];
 
 export function Setup() {
@@ -28,6 +28,8 @@ export function Setup() {
   const [issue, setIssue] = useState('');
   const [selectedSubs, setSelectedSubs] = useState<string[]>([]);
   const [selectedTopicMap, setSelectedTopicMap] = useState<Record<string, string[]>>({});
+  const [showWorldMessage, setShowWorldMessage] = useState(false);
+  const [selectedWorldName, setSelectedWorldName] = useState('');
 
   // Compute preview theme from selected grade group
   const previewTheme = gradeGroup !== null
@@ -43,6 +45,20 @@ export function Setup() {
       // Cleanup will be handled by ThemeWrapper on next render
     };
   }, [previewTheme]);
+
+  useEffect(() => {
+    if (showWorldMessage) {
+      const timer = setTimeout(() => {
+        setProfile(name || 'Adventurer', grade, issue || 'general');
+        setSelectedSubjects(selectedSubs);
+        setSelectedTopics(selectedTopicMap);
+        sessionStorage.removeItem('pending_new_user');
+        setLocation('/timetable');
+      }, 2500);
+      return () => clearTimeout(timer);
+    }
+    return undefined;
+  }, [showWorldMessage, name, grade, issue, selectedSubs, selectedTopicMap, setProfile, setSelectedSubjects, setSelectedTopics, setLocation]);
 
   const mascotMessages = [
     "Ahoy! What's your name, brave explorer?",
@@ -78,7 +94,6 @@ export function Setup() {
     switch (step) {
       case 1: return name.trim().length > 0;
       case 2: return gradeGroup !== null;
-      case 3: return issue.length > 0;
       default: return true;
     }
   };
@@ -87,10 +102,35 @@ export function Setup() {
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center p-6 relative">
-      <AnimatedBackground themeOverride={previewTheme} />
-      <Mascot message={mascotMessages[step - 1]} />
+      {gradeGroup === null
+        ? <AnimatedBackground forceDefault />
+        : <AnimatedBackground themeOverride={previewTheme} />
+      }
+      {!showWorldMessage && <Mascot message={mascotMessages[step - 1]} />}
 
-      <div className="w-full max-w-lg z-10">
+      {/* Full-screen world welcome message */}
+      <AnimatePresence>
+        {showWorldMessage && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.8 }}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 pointer-events-none"
+          >
+            <motion.h1
+              initial={{ scale: 0.8, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ delay: 0.3, type: "spring", stiffness: 100 }}
+              className="text-white text-5xl md:text-7xl font-display font-bold text-center drop-shadow-[0_0_20px_rgba(255,255,255,0.8)]"
+            >
+              Welcome to the {selectedWorldName} World
+            </motion.h1>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <div className={`w-full max-w-lg z-10 ${showWorldMessage ? 'opacity-0 pointer-events-none' : ''} transition-opacity duration-500`}>
         {/* Progress bar */}
         <div className="flex justify-center gap-2 mb-8">
           {Array.from({ length: TOTAL_STEPS }).map((_, i) => (
@@ -127,7 +167,12 @@ export function Setup() {
                 {gradeGroups.map((g, i) => (
                   <button
                     key={i}
-                    onClick={() => { setGradeGroup(i); setGrade(g.grades[0]); }}
+                    onClick={() => { 
+                      setGradeGroup(i); 
+                      setGrade(g.grades[0]); 
+                      setSelectedWorldName(g.worldName);
+                      setShowWorldMessage(true);
+                    }}
                     className={`p-5 rounded-2xl border-2 text-left transition-all duration-300 ${gradeGroup === i ? 'border-primary bg-primary/15 scale-[1.02] shadow-lg shadow-primary/20' : 'border-border bg-background hover:border-primary/50'}`}
                   >
                     <div className="flex items-center gap-4">
@@ -141,38 +186,10 @@ export function Setup() {
                   </button>
                 ))}
               </div>
-              <div className="flex gap-3">
-                <button onClick={() => setStep(step - 1)} className="game-button bg-white/15 backdrop-blur text-white border border-white/30 px-6 py-4 text-lg">Back</button>
-                <button onClick={handleNext} disabled={!canProceed()} className="game-button game-button-primary flex-1 py-4 text-xl disabled:opacity-50">Continue</button>
-              </div>
             </motion.div>
           )}
 
-          {/* Step 3: Focus Issues */}
-          {step === 3 && (
-            <motion.div key="step3" initial={{ opacity: 0, x: 50 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -50 }} className="glass-panel p-8 rounded-3xl">
-              <h2 className="text-3xl font-display font-bold mb-6 text-center text-primary">Why do you lose focus?</h2>
-              <div className="grid grid-cols-1 gap-3 mb-6">
-                {FOCUS_ISSUES.map(opt => (
-                  <button
-                    key={opt.id}
-                    onClick={() => setIssue(opt.id)}
-                    className={`p-4 rounded-xl border-2 text-left font-bold transition-all duration-200 flex items-center gap-3 ${issue === opt.id ? 'border-primary bg-primary/10 scale-[1.02]' : 'border-border bg-background hover:border-primary/50'}`}
-                  >
-                    <span className="text-2xl">{opt.emoji}</span>
-                    <span>{opt.label}</span>
-                    {issue === opt.id && <Check className="ml-auto w-5 h-5 text-primary" />}
-                  </button>
-                ))}
-              </div>
-              <div className="flex gap-3">
-                <button onClick={() => setStep(step - 1)} className="game-button bg-white/15 backdrop-blur text-white border border-white/30 px-6 py-4 text-lg">Back</button>
-                <button onClick={handleNext} disabled={!canProceed()} className="game-button game-button-primary flex-1 py-4 text-xl disabled:opacity-50">
-                  🗺️ Enter World Map
-                </button>
-              </div>
-            </motion.div>
-          )}
+
 
         </AnimatePresence>
       </div>
