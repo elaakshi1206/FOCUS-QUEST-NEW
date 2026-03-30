@@ -1,0 +1,31 @@
+{
+  "name": "@workspace/ai-companion",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "tsx --watch src/index.ts",
+    "start": "node src/index.js",
+    "build": "tsc"
+  },
+  "dependencies": {
+    "express": "^4.21.2",
+    "cors": "^2.8.5",
+    "helmet": "^8.0.0",
+    "zod": "^3.25.76",
+    "dotenv": "^16.4.7",
+    "fs-extra": "^11.3.0",
+    "@google/generative-ai": "^0.23.0",
+    "winston": "^3.17.0",
+    "uuid": "^11.1.0"
+  },
+  "devDependencies": {
+    "typescript": "~5.9.2",
+    "@types/node": "^25.3.3",
+    "@types/express": "^5.0.0",
+    "@types/cors": "^2.8.17",
+    "@types/uuid": "^10.0.0",
+    "@types/fs-extra": "^11.0.4",
+    "tsx": "^4.21.0"
+  }
+}

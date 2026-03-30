@@ -51,13 +51,37 @@ export interface Subject {
   description: string;
 }
 
-export const SUBJECTS: Subject[] = [
+export const SUBJECTS_BASE: Subject[] = [
   { id: 'math', title: 'Mathematics', icon: '🔢', color: 'from-blue-400 to-blue-600', description: 'Master numbers and shapes!' },
   { id: 'science', title: 'Science', icon: '🔬', color: 'from-green-400 to-green-600', description: 'Discover how the universe works.' },
   { id: 'english', title: 'English', icon: '📚', color: 'from-purple-400 to-purple-600', description: 'The power of words and stories.' },
   { id: 'social', title: 'Social Studies', icon: '🌍', color: 'from-orange-400 to-orange-600', description: 'Explore history and geography.' },
   { id: 'logic', title: 'Logical Thinking', icon: '🧩', color: 'from-pink-400 to-pink-600', description: 'Solve puzzles and think critically.' }
 ];
+
+export const SUBJECTS_MIDDLE: Subject[] = [
+  { id: 'math_mid', title: 'Mathematics', icon: '📐', color: 'from-blue-500 to-indigo-500', description: 'Pre-Algebra & Advanced Geometry.' },
+  { id: 'science_mid', title: 'Science', icon: '🌍', color: 'from-green-500 to-teal-500', description: 'Earth, Life & Physical Sciences.' },
+  { id: 'english_mid', title: 'Language Arts', icon: '📖', color: 'from-purple-500 to-fuchsia-500', description: 'Literature, Grammar & Writing.' },
+  { id: 'social_mid', title: 'Social Studies', icon: '🗺️', color: 'from-orange-500 to-red-500', description: 'World History & Geography.' },
+  { id: 'logic_mid', title: 'Logic & Coding', icon: '💻', color: 'from-cyan-500 to-blue-500', description: 'Algorithms & Problem Solving.' }
+];
+
+export const SUBJECTS_HIGH: Subject[] = [
+  { id: 'math_high', title: 'Mathematics', icon: '➗', color: 'from-blue-400 to-indigo-600', description: 'Algebra, Geometry & Trigonometry.' },
+  { id: 'physics', title: 'Physics', icon: '⚛️', color: 'from-cyan-400 to-cyan-600', description: 'Motion, Forces & Energy.' },
+  { id: 'chemistry', title: 'Chemistry', icon: '🧪', color: 'from-emerald-400 to-emerald-600', description: 'Matter & Chemical Reactions.' },
+  { id: 'biology', title: 'Biology', icon: '🧬', color: 'from-lime-400 to-lime-600', description: 'Cells & Human Body.' },
+  { id: 'computer', title: 'Computer Science', icon: '💻', color: 'from-indigo-400 to-indigo-600', description: 'Coding & Algorithms.' }
+];
+
+export const SUBJECTS: Subject[] = [...SUBJECTS_BASE, ...SUBJECTS_MIDDLE, ...SUBJECTS_HIGH];
+
+export function getSubjectsForGrade(grade: number): Subject[] {
+  if (grade >= 8) return SUBJECTS_HIGH;
+  if (grade >= 5) return SUBJECTS_MIDDLE;
+  return SUBJECTS_BASE;
+}
 
 export interface QuizQuestion {
   id: string;
@@ -321,6 +345,288 @@ export const QUESTS: Quest[] = [
       { id: 'lq8', question: "A conditional says: 'IF it rains, THEN take an umbrella.' What triggers the action?", options: ["Always carry umbrella", "If it rains", "If you want", "Never go out"], correctIndex: 1, hint: "The IF part is the condition." },
       { id: 'lq9', question: "What does debugging mean in programming?", options: ["Adding more code", "Finding and fixing errors", "Deleting the program", "Running the code"], correctIndex: 1, hint: "Bugs are mistakes in the code." }
     ]
+  },
+
+  // ======== MIDDLE SCHOOL MATH ========
+  {
+    id: 'math_m1', subjectId: 'math_mid', title: 'Pre-Algebra Basics', difficulty: 2, xpReward: 80, requiredXp: 0, timeMins: 8,
+    notes: ["Variables substitute unknown numbers.", "Isolate the variable to solve the equation."],
+    quiz: [
+      { id: 'mmq1', question: "Solve for x: 2x = 10", options: ["3", "4", "5", "6"], correctIndex: 2, hint: "Divide by 2." },
+      { id: 'mmq2', question: "What is 3 + x = 7?", options: ["4", "5", "3", "2"], correctIndex: 0, hint: "Subtract 3." }
+    ]
+  },
+  {
+    id: 'math_m2', subjectId: 'math_mid', title: 'Area & Perimeter', difficulty: 2, xpReward: 80, requiredXp: 50, timeMins: 8,
+    notes: ["Perimeter is distance around.", "Area is the space inside."],
+    quiz: [
+      { id: 'mmq3', question: "Perimeter of a square with side 4?", options: ["8", "12", "16", "20"], correctIndex: 2, hint: "4 x 4 sides." }
+    ]
+  },
+  // ======== MIDDLE SCHOOL SCIENCE ========
+  {
+    id: 'sci_m1', subjectId: 'science_mid', title: 'Ecosystems & Energy', difficulty: 2, xpReward: 80, requiredXp: 0, timeMins: 8,
+    notes: ["Food webs show energy transfer.", "Producers are at the bottom of the food web."],
+    quiz: [
+      { id: 'msq1', question: "Which organism is a producer?", options: ["Lion", "Grass", "Hawk", "Human"], correctIndex: 1, hint: "Makes its own food." }
+    ]
+  },
+  {
+    id: 'sci_m2', subjectId: 'science_mid', title: 'Human Biology', difficulty: 2, xpReward: 90, requiredXp: 50, timeMins: 8,
+    notes: ["Circulatory system pumps blood.", "Respiratory system handles oxygen."],
+    quiz: [
+      { id: 'msq2', question: "Which system includes the lungs?", options: ["Digestive", "Nervous", "Circulatory", "Respiratory"], correctIndex: 3, hint: "Breathing system." }
+    ]
+  },
+  // ======== MIDDLE SCHOOL ENGLISH ========
+  {
+    id: 'eng_m1', subjectId: 'english_mid', title: 'Advanced Grammar', difficulty: 2, xpReward: 80, requiredXp: 0, timeMins: 8,
+    notes: ["A dependent clause cannot stand alone.", "Conjunctions connect clauses."],
+    quiz: [
+      { id: 'meq1', question: "Which word is a conjunction?", options: ["And", "Run", "Quickly", "Happy"], correctIndex: 0, hint: "It connects words." }
+    ]
+  },
+  {
+    id: 'eng_m2', subjectId: 'english_mid', title: 'Literature Analysis', difficulty: 3, xpReward: 100, requiredXp: 50, timeMins: 10,
+    notes: ["Theme is the main message.", "Conflict drives the plot."],
+    quiz: [
+      { id: 'meq2', question: "What is the main message of a story called?", options: ["Plot", "Setting", "Theme", "Conflict"], correctIndex: 2, hint: "The moral or lesson." }
+    ]
+  },
+  // ======== MIDDLE SCHOOL SOCIAL STUDIES ========
+  {
+    id: 'soc_m1', subjectId: 'social_mid', title: 'Ancient Civilizations', difficulty: 2, xpReward: 85, requiredXp: 0, timeMins: 8,
+    notes: ["Mesopotamia is the cradle of civilization.", "Greece birthed democracy."],
+    quiz: [
+      { id: 'mss1', question: "Where did democracy originate?", options: ["Egypt", "Rome", "Greece", "China"], correctIndex: 2, hint: "Athens is its capital." }
+    ]
+  },
+  {
+    id: 'soc_m2', subjectId: 'social_mid', title: 'World Geography', difficulty: 2, xpReward: 85, requiredXp: 50, timeMins: 8,
+    notes: ["Equator divides Earth into Northern and Southern hemispheres."],
+    quiz: [
+      { id: 'mss2', question: "Which line divides Earth into N/S hemispheres?", options: ["Prime Meridian", "Equator", "Tropic of Cancer", "Tropic of Capricorn"], correctIndex: 1, hint: "0 degrees latitude." }
+    ]
+  },
+  // ======== MIDDLE SCHOOL LOGIC & CODING ========
+  {
+    id: 'log_m1', subjectId: 'logic_mid', title: 'Intro to Python', difficulty: 2, xpReward: 90, requiredXp: 0, timeMins: 8,
+    notes: ["Variables store data.", "Print() outputs text."],
+    quiz: [
+      { id: 'mcq1', question: "Which command outputs text in Python?", options: ["echo()", "write()", "print()", "log()"], correctIndex: 2, hint: "Like printing on paper." }
+    ]
+  },
+  {
+    id: 'log_m2', subjectId: 'logic_mid', title: 'Loops & Logic', difficulty: 3, xpReward: 100, requiredXp: 50, timeMins: 10,
+    notes: ["A 'for' loop repeats a specific number of times.", "A 'while' loop repeats until a condition is met."],
+    quiz: [
+      { id: 'mcq2', question: "Which loop repeats while a condition is true?", options: ["for loop", "while loop", "if loop", "do loop"], correctIndex: 1, hint: "Name is in the question." }
+    ]
+  },
+
+  // ======== HIGH SCHOOL MATH ========
+  {
+    id: 'math_h1', subjectId: 'math_high', title: 'Algebra', difficulty: 2, xpReward: 100, requiredXp: 0, timeMins: 10,
+    notes: [
+      "Algebra uses letters (variables) to represent numbers.",
+      "An equation states that two expressions are equal.",
+      "Linear equations form a straight line when graphed."
+    ],
+    quiz: [
+      { id: 'mhq1', question: "What is x if x + 5 = 12?", options: ["5", "6", "7", "8"], correctIndex: 2, hint: "Subtract 5 from 12." },
+      { id: 'mhq1b', question: "Simplify the expression: 2x + 3x", options: ["5", "5x", "x^5", "6x"], correctIndex: 1, hint: "Add the coefficients." },
+      { id: 'mhq1c', question: "What represents the unknown value in algebra?", options: ["Constant", "Variable", "Operator", "Exponent"], correctIndex: 1, hint: "Usually a letter like x or y." }
+    ]
+  },
+  {
+    id: 'math_h2', subjectId: 'math_high', title: 'Geometry', difficulty: 2, xpReward: 100, requiredXp: 50, timeMins: 10,
+    notes: [
+      "Geometry focuses on properties of space and figures.",
+      "The sum of interior angles in a triangle is 180°.",
+      "Pythagorean theorem applies to right-angled triangles."
+    ],
+    quiz: [
+      { id: 'mhq2', question: "What is the area of a rectangle with length 6 and width 4?", options: ["24", "10", "20", "12"], correctIndex: 0, hint: "Length x Width." },
+      { id: 'mhq2b', question: "In a right triangle, what is the longest side called?", options: ["Adjacent", "Opposite", "Hypotenuse", "Base"], correctIndex: 2, hint: "It's completely opposite to the 90 degree angle." },
+      { id: 'mhq2c', question: "If two angles of a triangle are 50° and 60°, what is the third?", options: ["60°", "70°", "80°", "90°"], correctIndex: 1, hint: "All three must add to 180." }
+    ]
+  },
+  {
+    id: 'math_h3', subjectId: 'math_high', title: 'Trigonometry', difficulty: 3, xpReward: 150, requiredXp: 100, timeMins: 10,
+    notes: [
+      "Trigonometry studies relationships involving lengths and angles of triangles.",
+      "SOH CAH TOA is a mnemonic for Sine, Cosine, and Tangent.",
+      "Sine is Opposite / Hypotenuse."
+    ],
+    quiz: [
+      { id: 'mhq3', question: "What does Sine represent in a right triangle?", options: ["Opposite / Hypotenuse", "Adjacent / Hypotenuse", "Opposite / Adjacent", "Adjacent / Opposite"], correctIndex: 0, hint: "Remember SOH." },
+      { id: 'mhq3b', question: "What is the Tangent of an angle?", options: ["Opposite / Hypotenuse", "Adjacent / Hypotenuse", "Opposite / Adjacent", "Hypotenuse / Opposite"], correctIndex: 2, hint: "Remember TOA." },
+      { id: 'mhq3c', question: "What is the inverse ratio of Cosine?", options: ["Secant", "Cosecant", "Cotangent", "Sine"], correctIndex: 0, hint: "Starts with Sec." }
+    ]
+  },
+
+  // ======== PHYSICS ========
+  {
+    id: 'phy_1', subjectId: 'physics', title: 'Motion', difficulty: 2, xpReward: 100, requiredXp: 0, timeMins: 10,
+    notes: [
+      "Motion is measured by displacement, velocity, and acceleration.",
+      "Velocity is speed with a direction.",
+      "Acceleration is the rate of change of velocity."
+    ],
+    quiz: [
+      { id: 'pq1', question: "What is Velocity?", options: ["Speed without direction", "Speed with a direction", "Rate of change of acceleration", "Force x Distance"], correctIndex: 1, hint: "It's a vector quantity." },
+      { id: 'pq1b', question: "What unit is typically used for acceleration?", options: ["m/s", "N", "m/s²", "J"], correctIndex: 2, hint: "Meters per second squared." },
+      { id: 'pq1c', question: "If a car travels 100 meters in 10 seconds, what is its average speed?", options: ["5 m/s", "10 m/s", "20 m/s", "100 m/s"], correctIndex: 1, hint: "Distance divided by time." }
+    ]
+  },
+  {
+    id: 'phy_2', subjectId: 'physics', title: 'Forces', difficulty: 2, xpReward: 100, requiredXp: 50, timeMins: 10,
+    notes: [
+      "A force is a push or pull that can cause an object to accelerate.",
+      "Newton's First Law: An object at rest stays at rest unless acted upon.",
+      "Friction opposes motion between surfaces relative to each other."
+    ],
+    quiz: [
+      { id: 'pq2', question: "What is Newton's Second Law statement?", options: ["Action equals reaction", "Force = mass × acceleration", "Energy cannot be destroyed", "Mass is conserved"], correctIndex: 1, hint: "F = ma." },
+      { id: 'pq2b', question: "Which force pulls objects toward the center of the Earth?", options: ["Friction", "Magnetism", "Gravity", "Tension"], correctIndex: 2, hint: "It keeps us on the ground." },
+      { id: 'pq2c', question: "What force opposes the sliding motion of two surfaces?", options: ["Inertia", "Gravity", "Friction", "Normal Force"], correctIndex: 2, hint: "It causes heat when you rub hands together." }
+    ]
+  },
+  {
+    id: 'phy_3', subjectId: 'physics', title: 'Electromagnetism', difficulty: 3, xpReward: 150, requiredXp: 100, timeMins: 10,
+    notes: [
+      "Moving electric charges create magnetic fields.",
+      "A changing magnetic field can induce an electric current.",
+      "Voltage is the electrical potential difference."
+    ],
+    quiz: [
+      { id: 'pq3', question: "What particles flow to create an electric current?", options: ["Protons", "Neutrons", "Electrons", "Atoms"], correctIndex: 2, hint: "Negatively charged particles." },
+      { id: 'pq3b', question: "What device turns mechanical energy into electrical energy?", options: ["Motor", "Generator", "Resistor", "Capacitor"], correctIndex: 1, hint: "It 'generates' electricity." },
+      { id: 'pq3c', question: "Like magnetic poles will...", options: ["Attract", "Repel", "Cancel out", "Do nothing"], correctIndex: 1, hint: "North pushes away North." }
+    ]
+  },
+
+  // ======== CHEMISTRY ========
+  {
+    id: 'chem_1', subjectId: 'chemistry', title: 'Matter', difficulty: 2, xpReward: 100, requiredXp: 0, timeMins: 10,
+    notes: [
+      "Matter is anything that has mass and takes up space.",
+      "Atoms are the fundamental building blocks of matter.",
+      "Protons and neutrons are in the nucleus; electrons orbit around it."
+    ],
+    quiz: [
+      { id: 'cq1', question: "What charge does a neutron have?", options: ["Positive", "Negative", "Neutral", "Variable"], correctIndex: 2, hint: "It's built into the name." },
+      { id: 'cq1b', question: "What is the center of an atom called?", options: ["Orbit", "Nucleus", "Core", "Cell"], correctIndex: 1, hint: "Similar to a biological cell's center." },
+      { id: 'cq1c', question: "Which particles determine the element's atomic number?", options: ["Neutrons", "Electrons", "Protons", "Quarks"], correctIndex: 2, hint: "They are positively charged." }
+    ]
+  },
+  {
+    id: 'chem_2', subjectId: 'chemistry', title: 'Reactions', difficulty: 2, xpReward: 100, requiredXp: 50, timeMins: 10,
+    notes: [
+      "A chemical reaction rearranges atoms to form new substances.",
+      "Exothermic reactions release heat.",
+      "Catalysts lower the activation energy required for a reaction."
+    ],
+    quiz: [
+      { id: 'cq2', question: "In a reaction equation, what are the starting materials called?", options: ["Products", "Reactants", "Catalysts", "Enzymes"], correctIndex: 1, hint: "They react together." },
+      { id: 'cq2b', question: "A reaction that absorbs energy/heat is called...", options: ["Exothermic", "Endothermic", "Combustion", "Decomposition"], correctIndex: 1, hint: "Endo = internal/into." },
+      { id: 'cq2c', question: "What speeds up a chemical reaction without being consumed?", options: ["Reactant", "Product", "Inhibitor", "Catalyst"], correctIndex: 3, hint: "It 'catalyzes' the change." }
+    ]
+  },
+  {
+    id: 'chem_3', subjectId: 'chemistry', title: 'Periodic Table', difficulty: 3, xpReward: 150, requiredXp: 100, timeMins: 10,
+    notes: [
+      "The periodic table arranges elements by atomic number.",
+      "Vertical columns are called Groups or Families.",
+      "Noble gases found on the far right are unreactive."
+    ],
+    quiz: [
+      { id: 'cq3', question: "What element has the chemical symbol 'O'?", options: ["Osmium", "Oxygen", "Oganesson", "Gold"], correctIndex: 1, hint: "We breathe it." },
+      { id: 'cq3b', question: "What are the horizontal rows on the periodic table called?", options: ["Groups", "Families", "Periods", "Blocks"], correctIndex: 2, hint: "Hence the name 'Periodic' Table." },
+      { id: 'cq3c', question: "Which group contains the highly unreactive noble gases?", options: ["Group 1", "Group 2", "Group 17", "Group 18"], correctIndex: 3, hint: "The far right column." }
+    ]
+  },
+
+  // ======== BIOLOGY ========
+  {
+    id: 'bio_1', subjectId: 'biology', title: 'Cells', difficulty: 2, xpReward: 100, requiredXp: 0, timeMins: 10,
+    notes: [
+      "Cells are the basic structural, functional, and biological units of all known organisms.",
+      "Plant cells have a rigid cell wall; animal cells do not.",
+      "Mitochondria generate most of the cell's supply of ATP."
+    ],
+    quiz: [
+      { id: 'bq1', question: "What is the 'powerhouse' of the cell?", options: ["Nucleus", "Ribosome", "Mitochondria", "Cell Wall"], correctIndex: 2, hint: "It produces ATP." },
+      { id: 'bq1b', question: "What structure is unique to plant cells compared to animal cells?", options: ["Nucleus", "Cell Wall", "Cell Membrane", "Cytoplasm"], correctIndex: 1, hint: "It makes plants rigid." },
+      { id: 'bq1c', question: "Where is the genetic material (DNA) housed in a eukaryotic cell?", options: ["Nucleus", "Vacuole", "Ribosome", "Golgi"], correctIndex: 0, hint: "The 'brain' or control center of the cell." }
+    ]
+  },
+  {
+    id: 'bio_2', subjectId: 'biology', title: 'Human Body', difficulty: 2, xpReward: 100, requiredXp: 50, timeMins: 10,
+    notes: [
+      "The human body's circulatory system transports blood and oxygen.",
+      "The nervous system transmits signals between different body parts.",
+      "White blood cells help fight off infections."
+    ],
+    quiz: [
+      { id: 'bq2', question: "Which organ pumps blood throughout the body?", options: ["Lungs", "Brain", "Liver", "Heart"], correctIndex: 3, hint: "It beats continuously." },
+      { id: 'bq2b', question: "What type of blood cells fight infection?", options: ["Red Blood Cells", "White Blood Cells", "Platelets", "Plasma"], correctIndex: 1, hint: "They are the 'immune' defenders." },
+      { id: 'bq2c', question: "What system controls and coordinates body activities?", options: ["Digestive", "Circulatory", "Nervous", "Skeletal"], correctIndex: 2, hint: "It includes the brain and spinal cord." }
+    ]
+  },
+  {
+    id: 'bio_3', subjectId: 'biology', title: 'Ecosystems', difficulty: 3, xpReward: 150, requiredXp: 100, timeMins: 10,
+    notes: [
+      "An ecosystem is a geographic area where plants, animals, and other organisms interact.",
+      "Producers make their own food; consumers eat. ",
+      "Biodiversity refers to the variety of life in a habitat."
+    ],
+    quiz: [
+      { id: 'bq3', question: "What do herbivores primarily consume?", options: ["Meat", "Plants", "Both", "Insects"], correctIndex: 1, hint: "Herb = plant." },
+      { id: 'bq3b', question: "What process do producers use to make food from sunlight?", options: ["Respiration", "Digestion", "Photosynthesis", "Fermentation"], correctIndex: 2, hint: "Synthesizing with light." },
+      { id: 'bq3c', question: "What type of organism breaks down dead organic material?", options: ["Producer", "Primary Consumer", "Decomposer", "Apex Predator"], correctIndex: 2, hint: "Fungi and bacteria play this role." }
+    ]
+  },
+
+  // ======== COMPUTER SCIENCE ========
+  {
+    id: 'cs_1', subjectId: 'computer', title: 'Coding Basics', difficulty: 2, xpReward: 100, requiredXp: 0, timeMins: 10,
+    notes: [
+      "A variable stores a data value.",
+      "Functions are reusable blocks of code.",
+      "If-statements allow for conditional execution."
+    ],
+    quiz: [
+      { id: 'csq1', question: "What is used to store data values in programming?", options: ["Function", "Variable", "Loop", "Syntax"], correctIndex: 1, hint: "It can 'vary'." },
+      { id: 'csq1b', question: "Which concept allows a block of code to repeat multiple times?", options: ["Variables", "Conditionals", "Loops", "Classes"], correctIndex: 2, hint: "It goes around and around." },
+      { id: 'csq1c', question: "Which of these is a popular programming language?", options: ["Python", "Cobra", "Viper", "Anaconda"], correctIndex: 0, hint: "A type of snake." }
+    ]
+  },
+  {
+    id: 'cs_2', subjectId: 'computer', title: 'Data Structures', difficulty: 3, xpReward: 150, requiredXp: 50, timeMins: 10,
+    notes: [
+      "An Array stores items sequentially.",
+      "A Stack follows Last-In, First-Out (LIFO).",
+      "A Queue follows First-In, First-Out (FIFO)."
+    ],
+    quiz: [
+      { id: 'csq2', question: "Which data structure operates on a 'First-In, First-Out' (FIFO) basis?", options: ["Stack", "Queue", "Tree", "Graph"], correctIndex: 1, hint: "Like a line at a store." },
+      { id: 'csq2b', question: "Which data structure operates on a 'Last-In, First-Out' (LIFO) basis?", options: ["Array", "Queue", "Stack", "List"], correctIndex: 2, hint: "Like a stack of plates." },
+      { id: 'csq2c', question: "What structure stores elements sequentially in memory?", options: ["Graph", "Array", "Tree", "Hash Map"], correctIndex: 1, hint: "A basic contiguous list." }
+    ]
+  },
+  {
+    id: 'cs_3', subjectId: 'computer', title: 'AI', difficulty: 3, xpReward: 150, requiredXp: 100, timeMins: 10,
+    notes: [
+      "Artificial Intelligence allows machines to learn from data.",
+      "Machine learning focuses on predictive algorithms.",
+      "Neural networks loosely mimic the human brain."
+    ],
+    quiz: [
+      { id: 'csq3', question: "What does AI stand for?", options: ["Automated Internet", "Artificial Intelligence", "Advanced Integration", "Active Interface"], correctIndex: 1, hint: "Simulated human smarts." },
+      { id: 'csq3b', question: "What subfield of AI enables models to learn from large amounts of data without explicit programming?", options: ["Web Dev", "Machine Learning", "Cloud Computing", "Cybersecurity"], correctIndex: 1, hint: "The machine 'learns'." },
+      { id: 'csq3c', question: "What AI structure is designed to mimic neurons in the human brain?", options: ["Decision Tree", "Neural Network", "Hash Array", "Linked List"], correctIndex: 1, hint: "Network of neurons." }
+    ]
   }
 ];
 
@@ -350,6 +656,39 @@ export const TOPICS: Topic[] = [
   { id: 'log_patterns', subjectId: 'logic', title: 'Patterns', icon: '🔢' },
   { id: 'log_critical', subjectId: 'logic', title: 'Critical Thinking', icon: '🧠' },
   { id: 'log_code', subjectId: 'logic', title: 'Code & Algorithms', icon: '💻' },
+  
+  // Middle School Topics
+  { id: 'math_prealg', subjectId: 'math_mid', title: 'Pre-Algebra', icon: '✖️' },
+  { id: 'math_areaperim', subjectId: 'math_mid', title: 'Area & Perimeter', icon: '📏' },
+  { id: 'sci_ecosys', subjectId: 'science_mid', title: 'Ecosystems', icon: '🌲' },
+  { id: 'sci_human', subjectId: 'science_mid', title: 'Human Biology', icon: '🦴' },
+  { id: 'eng_grammar', subjectId: 'english_mid', title: 'Adv. Grammar', icon: '✨' },
+  { id: 'eng_lit', subjectId: 'english_mid', title: 'Literature', icon: '📚' },
+  { id: 'soc_ancient', subjectId: 'social_mid', title: 'Ancient Civ', icon: '🏛️' },
+  { id: 'soc_geog', subjectId: 'social_mid', title: 'World Geography', icon: '🗺️' },
+  { id: 'log_intro', subjectId: 'logic_mid', title: 'Python Basics', icon: '🐍' },
+  { id: 'log_loops', subjectId: 'logic_mid', title: 'Loops & Logic', icon: '🔄' },
+
+  // High School Topics
+  { id: 'math_algebra', subjectId: 'math_high', title: 'Algebra', icon: '➗' },
+  { id: 'math_hgeometry', subjectId: 'math_high', title: 'Geometry', icon: '📐' },
+  { id: 'math_trig', subjectId: 'math_high', title: 'Trigonometry', icon: '🔺' },
+  
+  { id: 'phy_motion', subjectId: 'physics', title: 'Motion', icon: '🏃' },
+  { id: 'phy_forces', subjectId: 'physics', title: 'Forces', icon: '🧲' },
+  { id: 'phy_electro', subjectId: 'physics', title: 'Electromagnetism', icon: '⚡' },
+
+  { id: 'chem_matter', subjectId: 'chemistry', title: 'Matter', icon: '🪨' },
+  { id: 'chem_reaction', subjectId: 'chemistry', title: 'Reactions', icon: '🔥' },
+  { id: 'chem_periodic', subjectId: 'chemistry', title: 'Periodic Table', icon: '🧪' },
+
+  { id: 'bio_cells', subjectId: 'biology', title: 'Cells', icon: '🔬' },
+  { id: 'bio_human', subjectId: 'biology', title: 'Human Body', icon: '🫀' },
+  { id: 'bio_eco', subjectId: 'biology', title: 'Ecosystems', icon: '🌿' },
+
+  { id: 'cs_basics', subjectId: 'computer', title: 'Coding Basics', icon: '⌨️' },
+  { id: 'cs_data', subjectId: 'computer', title: 'Data Structures', icon: '🧱' },
+  { id: 'cs_ai', subjectId: 'computer', title: 'AI', icon: '🤖' },
 ];
 
 // ======== EQUIPMENT / CUSTOMIZATION ========

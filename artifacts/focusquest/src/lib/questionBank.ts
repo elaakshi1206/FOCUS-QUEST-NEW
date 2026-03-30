@@ -169,6 +169,47 @@ export const socContinents: RichQuestion[] = [
   { id:'sc8', type:'fillblank', difficulty:3, question:'The continent with the least population is ___.', answer:'Antarctica', hint:'Only scientists live there temporarily.' },
 ];
 
+// ─── MIDDLE SCHOOL: Math ──────────────────────────────────────────────────────
+export const mathMiddle: RichQuestion[] = [
+  { id:'mmq1', type:'mcq', difficulty:2, question:'Solve for x: 2x = 10', options:['3','4','5','6'], correctIndex:2, hint:'Divide both sides by 2.' },
+  { id:'mmq2', type:'mcq', difficulty:2, question:'What is 3 + x = 7?', options:['4','5','3','2'], correctIndex:0, hint:'Subtract 3 from both sides.' },
+  { id:'mmq3', type:'fillblank', difficulty:2, question:'The perimeter of a square with side length 4 is ___.', answer:'16', hint:'4 sides of equal length.' },
+  { id:'mmq4', type:'mcq', difficulty:2, question:'What is the area of a rectangle with sides 5 and 4?', options:['20','9','18','16'], correctIndex:0, hint:'Multiply the sides.' },
+  { id:'mmq5', type:'sequence', difficulty:3, question:'Order these fractions from smallest to largest:', sequence:['1/4', '1/3', '1/2', '2/3', '3/4'], hint:'Look at the denominators and numerators.' }
+];
+
+// ─── MIDDLE SCHOOL: Science ───────────────────────────────────────────────────
+export const sciMiddle: RichQuestion[] = [
+  { id:'msq1', type:'mcq', difficulty:2, question:'Which organism is a producer?', options:['Lion','Grass','Hawk','Human'], correctIndex:1, hint:'It makes its own food.' },
+  { id:'msq2', type:'truefalse', difficulty:2, question:'The circulatory system is responsible for breathing.', options:['True','False'], correctIndex:1, hint:'The respiratory system is for breathing.' },
+  { id:'msq3', type:'fillblank', difficulty:2, question:'The heart is a part of the ___ system.', answer:'circulatory', hint:'It circulates blood.' },
+  { id:'msq4', type:'mcq', difficulty:3, question:'What gas do plants need for photosynthesis?', options:['Oxygen','Nitrogen','Carbon Dioxide','Helium'], correctIndex:2, hint:'Humans breathe this out.' }
+];
+
+// ─── MIDDLE SCHOOL: English ───────────────────────────────────────────────────
+export const engMiddle: RichQuestion[] = [
+  { id:'meq1', type:'mcq', difficulty:2, question:'Which word is a conjunction?', options:['And','Run','Quickly','Happy'], correctIndex:0, hint:'It connects clauses or words.' },
+  { id:'meq2', type:'mcq', difficulty:2, question:'What is the main message of a story called?', options:['Plot','Setting','Theme','Conflict'], correctIndex:2, hint:'The moral or lesson.' },
+  { id:'meq3', type:'truefalse', difficulty:3, question:'A dependent clause can stand alone as a sentence.', options:['True','False'], correctIndex:1, hint:'It depends on the rest of the sentence to make sense.' },
+  { id:'meq4', type:'fillblank', difficulty:3, question:'The main character of a story is the ___.', answer:'protagonist', hint:'Opposite of antagonist.' }
+];
+
+// ─── MIDDLE SCHOOL: Social Studies ────────────────────────────────────────────
+export const socMiddle: RichQuestion[] = [
+  { id:'mss1', type:'mcq', difficulty:2, question:'Where did democracy originate?', options:['Egypt','Rome','Greece','China'], correctIndex:2, hint:'Ancient Athens.' },
+  { id:'mss2', type:'mcq', difficulty:2, question:'Which line divides Earth into N/S hemispheres?', options:['Prime Meridian','Equator','Tropic of Cancer','Tropic of Capricorn'], correctIndex:1, hint:'The 0 degree latitude line.' },
+  { id:'mss3', type:'match', difficulty:2, question:'Match the ancient civilization to its famous aspect:', pairs:[{left:'Egypt',right:'Pyramids'},{left:'Mesopotamia',right:'Cradle of Civilization'},{left:'Greece',right:'Democracy'},{left:'Rome',right:'Aqueducts'}], hint:'Think of their greatest contributions.' },
+  { id:'mss4', type:'fillblank', difficulty:3, question:'The longest river in the world is usually considered the ___.', answer:'Nile', hint:'Located in Africa.' }
+];
+
+// ─── MIDDLE SCHOOL: Logic & Coding ────────────────────────────────────────────
+export const logMiddle: RichQuestion[] = [
+  { id:'mlq1', type:'mcq', difficulty:2, question:'Which command outputs text in Python?', options:['echo()','write()','print()','log()'], correctIndex:2, hint:'Like putting ink on paper.' },
+  { id:'mlq2', type:'mcq', difficulty:2, question:'Which loop repeats while a condition is true?', options:['for loop','while loop','if loop','do loop'], correctIndex:1, hint:'Name is in the question.' },
+  { id:'mlq3', type:'fillblank', difficulty:2, question:'A ___ stores data that can change in a program.', answer:'variable', hint:'It varies.' },
+  { id:'mlq4', type:'truefalse', difficulty:3, question:'A "for" loop will run forever unless stopped.', options:['True','False'], correctIndex:1, hint:'A "for" loop runs a specific number of times.' }
+];
+
 // ─── Master bank registry (keyed by quest id) ─────────────────────────────────
 export const QUESTION_BANK: Record<string, RichQuestion[]> = {
   math_1: mathFractions,
@@ -186,6 +227,16 @@ export const QUESTION_BANK: Record<string, RichQuestion[]> = {
   log_1:  logicPatterns,
   log_2:  logicPatterns,
   log_3:  logicAlgorithms,
+  math_m1: mathMiddle,
+  math_m2: mathMiddle,
+  sci_m1: sciMiddle,
+  sci_m2: sciMiddle,
+  eng_m1: engMiddle,
+  eng_m2: engMiddle,
+  soc_m1: socMiddle,
+  soc_m2: socMiddle,
+  log_m1: logMiddle,
+  log_m2: logMiddle,
 };
 
 // ─── Procedural math generator ────────────────────────────────────────────────

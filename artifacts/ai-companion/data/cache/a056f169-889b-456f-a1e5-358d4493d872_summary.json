@@ -1,0 +1,16 @@
+{
+  "chat_id": "a056f169-889b-456f-a1e5-358d4493d872",
+  "user_id": "anonymous",
+  "character_stats": {
+    "level": 1,
+    "xp": 15,
+    "streak": 0,
+    "grade": 3,
+    "mascotName": "Captain Beak",
+    "userName": ""
+  },
+  "context_summary": null,
+  "raw_summary_text": "Summary generation pending (3 messages so far).",
+  "message_count": 6,
+  "last_updated": "2026-03-29T20:05:56.553Z"
+}

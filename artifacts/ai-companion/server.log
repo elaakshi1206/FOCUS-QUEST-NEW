@@ -1,0 +1,69 @@
+{"level":"info","message":"Loaded 16 Gemini API key(s)."}
+{"level":"info","message":"Loaded 16 Gemini API key(s)."}
+node.exe : node:events:486
+At line:1 char:1
++ & "C:\Program 
+Files\nodejs/node.exe" 
+"C:\Program 
+Files\nodejs/node_mo ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~
+    + CategoryInfo         
+     : NotSpecified: (nod  
+  e:events:486:String) [   
+ ], RemoteException
+    + FullyQualifiedErrorI 
+   d : NativeCommandError
+ 
+      throw er; // 
+Unhandled 'error' event
+      ^
+
+Error: listen EADDRINUSE: 
+address already in use 
+:::3003
+    at 
+Server.setupListenHandle 
+[as _listen2] 
+(node:net:1948:16)
+    at listenInCluster 
+(node:net:2005:12)
+    at Server.listen 
+(node:net:2110:7)
+    at app.listen (C:\Users
+\lenovo\FOCUS-QUEST-NEW\nod
+e_modules\.pnpm\express@4.2
+2.1\node_modules\express\li
+b\application.js:635:24)
+    at <anonymous> (C:\User
+s\lenovo\FOCUS-QUEST-NEW\ar
+tifacts\ai-companion\src\in
+dex.ts:49:5)
+    at ModuleJob.run (node:
+internal/modules/esm/module
+_job:430:25)
+    at async onImport.trace
+Promise.__proto__ (node:int
+ernal/modules/esm/loader:66
+1:26)
+    at async asyncRunEntryP
+ointWithESMLoader (node:int
+ernal/modules/run_main:101:
+5)
+Emitted 'error' event on 
+Server instance at:
+    at emitErrorNT 
+(node:net:1984:8)
+    at process.processTicks
+AndRejections (node:interna
+l/process/task_queues:90:21
+) {
+  code: 'EADDRINUSE',
+  errno: -4091,
+  syscall: 'listen',
+  address: '::',
+  port: 3003
+}
+
+Node.js v24.14.1

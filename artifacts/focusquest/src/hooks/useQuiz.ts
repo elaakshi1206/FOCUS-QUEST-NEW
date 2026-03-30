@@ -14,6 +14,7 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { type RichQuestion, shuffle, getRandomQuestions } from '@/lib/questionBank';
+import { QUESTS } from '@/lib/data';
 
 export interface ShuffledQuestion extends RichQuestion {
   // For MCQ/TrueFalse/Image: shuffled options + remapped correctIndex
@@ -81,10 +82,25 @@ function buildShuffled(q: RichQuestion): ShuffledQuestion {
 const QUESTION_COUNT = 6;
 const SECONDS_PER_Q = 18;
 
-export function useQuiz(questId: string, focusLevel = 50, onComplete?: (score: number, wrongIds: string[]) => void) {
+export function useQuiz(questId: string, focusLevel = 50, onComplete?: (score: number, total: number, wrongIds: string[]) => void) {
   // ── Session initialisation ──────────────────────────────────────────────────
   const buildSession = useCallback(() => {
-    const raw = getRandomQuestions(questId, QUESTION_COUNT, focusLevel, questId.startsWith('math'));
+    let raw = getRandomQuestions(questId, QUESTION_COUNT, focusLevel, questId.startsWith('math'));
+    if (raw.length === 0) {
+      // Fallback to inline quest data
+      const questData = QUESTS.find(q => q.id === questId);
+      if (questData && questData.quiz) {
+         raw = questData.quiz.map(q => ({
+           id: q.id,
+           type: 'mcq' as const,
+           question: q.question,
+           options: q.options,
+           correctIndex: q.correctIndex,
+           hint: q.hint,
+           difficulty: 2 as const,
+         }));
+      }
+    }
     return raw.map(buildShuffled);
   }, [questId, focusLevel]);
 
@@ -248,7 +264,7 @@ export function useQuiz(questId: string, focusLevel = 50, onComplete?: (score: n
     if (state.isAnswered && state.currentIndex === state.questions.length - 1) {
       const delay = state.wrongIds.includes(current?.id ?? '') ? 3200 : 1800;
       t = setTimeout(() => {
-        onComplete?.(state.score, state.wrongIds);
+        onComplete?.(state.score, state.questions.length, state.wrongIds);
       }, delay);
     }
     return () => clearTimeout(t);

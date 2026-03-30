@@ -44,7 +44,7 @@ export function MascotLogo({ className = "" }: MascotLogoProps) {
           {imageSrc ? (
             <img 
               src={imageSrc} 
-              alt="Finny Mascot" 
+              alt="FocusQuest Mascot" 
               className="w-full h-full object-cover"
               onError={(e) => {
                 // Fallback to emoji if image fails to load

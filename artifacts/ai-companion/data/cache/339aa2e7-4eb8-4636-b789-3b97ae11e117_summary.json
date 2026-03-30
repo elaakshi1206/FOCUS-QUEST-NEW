@@ -1,0 +1,15 @@
+{
+  "chat_id": "339aa2e7-4eb8-4636-b789-3b97ae11e117",
+  "user_id": "anonymous",
+  "character_stats": {
+    "level": 3,
+    "xp": 50,
+    "streak": 5,
+    "userName": "TestHero",
+    "grade": 8
+  },
+  "context_summary": null,
+  "raw_summary_text": "Summary generation pending (1 messages so far).",
+  "message_count": 2,
+  "last_updated": "2026-03-30T10:28:14.312Z"
+}

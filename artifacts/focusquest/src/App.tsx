@@ -4,8 +4,9 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { GameProvider } from "@/lib/store";
 import { ThemeWrapper } from "@/components/ThemeWrapper";
-import { AiGuideChat } from "@/components/AiGuideChat";
+import { BotpressChat } from "@/components/BotpressChat";
 import NotFound from "@/pages/not-found";
+
 
 import { Landing } from "@/pages/Landing";
 import { LoginPage } from "@/pages/LoginPage";
@@ -50,8 +51,10 @@ function App() {
               <Router />
             </WouterRouter>
             <Toaster />
-            <AiGuideChat />
+            <BotpressChat />
           </TooltipProvider>
+
+
         </ThemeWrapper>
       </GameProvider>
     </QueryClientProvider>

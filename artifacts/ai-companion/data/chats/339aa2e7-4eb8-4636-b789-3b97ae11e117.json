@@ -1,0 +1,31 @@
+{
+  "chat_id": "339aa2e7-4eb8-4636-b789-3b97ae11e117",
+  "user_id": "anonymous",
+  "messages": [
+    {
+      "role": "user",
+      "content": "Hello! What is my quest today?",
+      "timestamp": "2026-03-30T10:28:10.099Z"
+    },
+    {
+      "role": "assistant",
+      "content": "I'm having a moment of brain-fog, Hero! 🧠⚡ Let me recharge — ask me again!",
+      "timestamp": "2026-03-30T10:28:14.311Z"
+    }
+  ],
+  "context_summary": null,
+  "raw_summary_text": "Summary generation pending (1 messages so far).",
+  "quest_data": {
+    "active_quests": [],
+    "last_quest_update": "2026-03-30T10:28:10.096Z"
+  },
+  "character_stats": {
+    "level": 3,
+    "xp": 50,
+    "streak": 5,
+    "userName": "TestHero",
+    "grade": 8
+  },
+  "last_updated": "2026-03-30T10:28:14.312Z",
+  "version": "2.0"
+}

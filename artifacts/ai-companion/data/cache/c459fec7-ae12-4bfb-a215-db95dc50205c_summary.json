@@ -1,0 +1,15 @@
+{
+  "chat_id": "c459fec7-ae12-4bfb-a215-db95dc50205c",
+  "user_id": "anonymous",
+  "character_stats": {
+    "level": 3,
+    "xp": 45,
+    "streak": 5,
+    "userName": "TestHero",
+    "grade": 8
+  },
+  "context_summary": null,
+  "raw_summary_text": "",
+  "message_count": 0,
+  "last_updated": "2026-03-30T09:58:40.434Z"
+}

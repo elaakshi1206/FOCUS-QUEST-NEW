@@ -1,7 +1,7 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { useLocation } from 'wouter';
 import { useGame } from '@/lib/store';
-import { SUBJECTS, TOPICS, QUESTS, Subject, Topic, getGradeTheme, THEME_MAP_CONFIG } from '@/lib/data';
+import { SUBJECTS, TOPICS, QUESTS, Subject, Topic, getGradeTheme, THEME_MAP_CONFIG, getSubjectsForGrade } from '@/lib/data';
 import { AnimatedBackground } from '@/components/AnimatedBackground';
 import { TopHUD } from '@/components/TopHUD';
 import { useState, useEffect, useRef } from 'react';
@@ -37,6 +37,51 @@ const TOPIC_POSITIONS: Record<string, { x: number; y: number }[]> = {
     { x: 66, y: 14 },
     { x: 42, y: 60 },
   ],
+  math_high: [
+    { x: 20, y: 18 },
+    { x: 65, y: 12 },
+    { x: 45, y: 55 },
+  ],
+  physics: [
+    { x: 15, y: 20 },
+    { x: 60, y: 18 },
+    { x: 38, y: 58 },
+  ],
+  chemistry: [
+    { x: 22, y: 20 },
+    { x: 68, y: 16 },
+    { x: 44, y: 62 },
+  ],
+  biology: [
+    { x: 18, y: 16 },
+    { x: 63, y: 22 },
+    { x: 38, y: 64 },
+  ],
+  computer: [
+    { x: 20, y: 18 },
+    { x: 66, y: 14 },
+    { x: 42, y: 60 },
+  ],
+  math_mid: [
+    { x: 30, y: 30 },
+    { x: 60, y: 50 },
+  ],
+  science_mid: [
+    { x: 25, y: 40 },
+    { x: 70, y: 30 },
+  ],
+  english_mid: [
+    { x: 35, y: 25 },
+    { x: 55, y: 65 },
+  ],
+  social_mid: [
+    { x: 20, y: 50 },
+    { x: 65, y: 40 },
+  ],
+  logic_mid: [
+    { x: 40, y: 30 },
+    { x: 50, y: 60 },
+  ],
 };
 
 // Path connections between topics (by index pairs)
@@ -46,6 +91,16 @@ const TOPIC_PATHS: Record<string, [number, number][]> = {
   english: [[0, 1], [1, 2]],
   social: [[0, 1], [1, 2]],
   logic: [[0, 1], [1, 2]],
+  math_high: [[0, 1], [1, 2]],
+  physics: [[0, 1], [1, 2]],
+  chemistry: [[0, 1], [1, 2]],
+  biology: [[0, 1], [1, 2]],
+  computer: [[0, 1], [1, 2]],
+  math_mid: [[0, 1]],
+  science_mid: [[0, 1]],
+  english_mid: [[0, 1]],
+  social_mid: [[0, 1]],
+  logic_mid: [[0, 1]],
 };
 
 // Distinct bright palette per subject
@@ -55,6 +110,16 @@ const SUBJECT_PALETTE: Record<string, { bg: string; border: string; glow: string
   english: { bg: 'from-purple-400 to-violet-600',  border: 'border-purple-300', glow: '#A78BFA', btnGrad: 'from-purple-500 to-violet-600' },
   social:  { bg: 'from-orange-400 to-amber-600',   border: 'border-orange-300', glow: '#FB923C', btnGrad: 'from-orange-500 to-amber-600' },
   logic:   { bg: 'from-pink-400 to-rose-600',      border: 'border-pink-300',   glow: '#F472B6', btnGrad: 'from-pink-500 to-rose-600' },
+  math_high: { bg: 'from-blue-400 to-indigo-600',    border: 'border-blue-300',   glow: '#60A5FA', btnGrad: 'from-blue-500 to-indigo-600' },
+  physics:   { bg: 'from-cyan-400 to-teal-600',      border: 'border-cyan-300',   glow: '#22D3EE', btnGrad: 'from-cyan-500 to-teal-600' },
+  chemistry: { bg: 'from-emerald-400 to-green-600',  border: 'border-emerald-300', glow: '#34D399', btnGrad: 'from-emerald-500 to-green-600' },
+  biology:   { bg: 'from-lime-400 to-green-500',     border: 'border-lime-300',   glow: '#A3E635', btnGrad: 'from-lime-500 to-green-600' },
+  computer:  { bg: 'from-indigo-400 to-violet-600',  border: 'border-indigo-300', glow: '#818CF8', btnGrad: 'from-indigo-500 to-violet-600' },
+  math_mid:    { bg: 'from-blue-500 to-indigo-500',   border: 'border-blue-300',   glow: '#60A5FA', btnGrad: 'from-blue-500 to-indigo-600' },
+  science_mid: { bg: 'from-green-500 to-teal-500',    border: 'border-green-300',  glow: '#34D399', btnGrad: 'from-green-500 to-teal-600' },
+  english_mid: { bg: 'from-purple-500 to-fuchsia-500',border: 'border-purple-300', glow: '#A78BFA', btnGrad: 'from-purple-500 to-fuchsia-600' },
+  social_mid:  { bg: 'from-orange-500 to-red-500',    border: 'border-orange-300', glow: '#FB923C', btnGrad: 'from-orange-500 to-red-600' },
+  logic_mid:   { bg: 'from-cyan-500 to-blue-500',     border: 'border-cyan-300',   glow: '#22D3EE', btnGrad: 'from-cyan-500 to-blue-600' },
 };
 
 // Subject metadata for the Pick Subjects panel
@@ -64,10 +129,17 @@ const SUBJECT_META: Record<string, { icon: string; emoji: string; label: string 
   social:  { icon: '📜', emoji: '📜', label: 'HISTORY' },
   logic:   { icon: '💡', emoji: '💡', label: 'LOGIC AND THINKING' },
   science: { icon: '🔬', emoji: '🔬', label: 'SCIENCE' },
+  math_high: { icon: '➗', emoji: '➗', label: 'ADVANCED MATHS' },
+  physics:   { icon: '⚛️', emoji: '⚛️', label: 'PHYSICS' },
+  chemistry: { icon: '🧪', emoji: '🧪', label: 'CHEMISTRY' },
+  biology:   { icon: '🧬', emoji: '🧬', label: 'BIOLOGY' },
+  computer:  { icon: '💻', emoji: '💻', label: 'COMPUTER SCIENCE' },
+  math_mid:    { icon: '📐', emoji: '📐', label: 'PRE-ALGEBRA' },
+  science_mid: { icon: '🌍', emoji: '🌍', label: 'SCIENCE' },
+  english_mid: { icon: '📖', emoji: '📖', label: 'LANGUAGE ARTS' },
+  social_mid:  { icon: '🗺️', emoji: '🗺️', label: 'WORLD HISTORY' },
+  logic_mid:   { icon: '💻', emoji: '💻', label: 'CODING & LOGIC' },
 };
-
-// Ordered subject list for the panel
-const PANEL_SUBJECT_ORDER = ['english', 'math', 'social', 'logic', 'science'];
 
 // ─────────────────────────────────────────────
 // Floating decorations on the map background
@@ -199,17 +271,33 @@ function TopicNode({
 // Pick Subjects Panel
 // ─────────────────────────────────────────────
 function PickSubjectsPanel({
+  grade,
   selectedId,
   onSelect,
   onEnter,
   onBack,
+  customSubjects = [],
 }: {
+  grade: number;
   selectedId: string | null;
   onSelect: (id: string) => void;
   onEnter: () => void;
   onBack: () => void;
+  customSubjects?: string[];
 }) {
-  const orderedSubjects = PANEL_SUBJECT_ORDER.map(id => SUBJECTS.find(s => s.id === id)!).filter(Boolean);
+  const orderedSubjects = getSubjectsForGrade(grade);
+
+  // Merge built-in subjects with custom subjects
+  const allSubjects = [
+    ...orderedSubjects,
+    ...customSubjects.map(s => ({
+      id: s,
+      title: s,
+      icon: '📝', 
+      color: 'from-slate-400 to-slate-600',
+      description: 'Your custom subject.'
+    }))
+  ];
 
   return (
     <motion.div
@@ -237,10 +325,10 @@ function PickSubjectsPanel({
         </div>
 
         {/* Subject buttons */}
-        <div className="p-3 space-y-2">
-          {orderedSubjects.map((subject, i) => {
-            const meta = SUBJECT_META[subject.id];
-            const palette = SUBJECT_PALETTE[subject.id];
+        <div className="p-3 space-y-2 max-h-[40vh] overflow-y-auto custom-scrollbar">
+          {allSubjects.map((subject, i) => {
+            const meta = SUBJECT_META[subject.id] || { icon: '📝', emoji: '📝', label: subject.title.toUpperCase() };
+            const palette = SUBJECT_PALETTE[subject.id] || { bg: 'from-slate-400 to-slate-600', border: 'border-slate-300', glow: '#94A3B8', btnGrad: 'from-slate-500 to-slate-600' };
             const isSelected = selectedId === subject.id;
 
             return (
@@ -315,7 +403,7 @@ function PickSubjectsPanel({
 // MAIN MAP PAGE
 // ─────────────────────────────────────────────
 export function Map() {
-  const { xp, completedQuests, grade, userName, isHydrated } = useGame();
+  const { xp, completedQuests, grade, userName, isHydrated, customSubjects } = useGame();
   const mapTheme = getGradeTheme(grade);
   const [, setLocation] = useLocation();
 
@@ -490,10 +578,12 @@ export function Map() {
       <AnimatePresence>
         {showPanel && (
           <PickSubjectsPanel
+            grade={grade}
             selectedId={selectedSubjectId}
             onSelect={setSelectedSubjectId}
             onEnter={handleEnterMap}
             onBack={() => setLocation('/')}
+            customSubjects={customSubjects}
           />
         )}
       </AnimatePresence>

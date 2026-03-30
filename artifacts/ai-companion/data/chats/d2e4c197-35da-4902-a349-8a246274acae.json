@@ -1,0 +1,52 @@
+{
+  "chat_id": "d2e4c197-35da-4902-a349-8a246274acae",
+  "user_id": "anonymous",
+  "messages": [
+    {
+      "role": "user",
+      "content": "hey",
+      "timestamp": "2026-03-30T10:46:03.257Z"
+    },
+    {
+      "role": "assistant",
+      "content": "I'm having a moment of brain-fog, Hero! 🧠⚡ Let me recharge — ask me again!",
+      "timestamp": "2026-03-30T10:46:17.969Z"
+    },
+    {
+      "role": "user",
+      "content": "hello",
+      "timestamp": "2026-03-30T10:47:27.020Z"
+    },
+    {
+      "role": "user",
+      "content": "hello",
+      "timestamp": "2026-03-30T10:47:31.934Z"
+    },
+    {
+      "role": "assistant",
+      "content": "I'm having a moment of brain-fog, Hero! 🧠⚡ Let me recharge — ask me again!",
+      "timestamp": "2026-03-30T10:47:41.292Z"
+    },
+    {
+      "role": "assistant",
+      "content": "I'm having a moment of brain-fog, Hero! 🧠⚡ Let me recharge — ask me again!",
+      "timestamp": "2026-03-30T10:47:44.495Z"
+    }
+  ],
+  "context_summary": null,
+  "raw_summary_text": "Summary generation pending (4 messages so far).",
+  "quest_data": {
+    "active_quests": [],
+    "last_quest_update": "2026-03-30T10:46:03.223Z"
+  },
+  "character_stats": {
+    "level": 1,
+    "xp": 15,
+    "streak": 0,
+    "grade": 3,
+    "mascotName": "Captain Beak",
+    "userName": ""
+  },
+  "last_updated": "2026-03-30T10:47:44.495Z",
+  "version": "2.0"
+}

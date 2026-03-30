@@ -1,176 +1,238 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useGame } from '@/lib/store';
-import { AI_GUIDE_SYSTEM_PROMPT } from '@/lib/aiGuidePrompt';
+import { getGradeTheme, getMascotThemeProps } from '@/lib/data';
 
-// ─── Types ───────────────────────────────────────────────
+// ─── Config ───────────────────────────────────────────────────────
+const NLB_URL = import.meta.env.VITE_AI_COMPANION_URL || 'http://localhost:3003';
+const SESSION_KEY = 'fq_chat_session_id';
+const SUMMARY_KEY  = 'fq_chat_summary';
+
+// ─── Types ────────────────────────────────────────────────────────
 interface Message {
   role: 'user' | 'assistant';
   text: string;
+  timestamp?: string;
 }
 
-// ─── Grade → game label ──────────────────────────────────
-function getGameModeLabel(grade: number): string {
-  if (grade <= 4) return '🐠 Sea World AI Tutor';
-  if (grade <= 7) return '🚀 Space AI Tutor';
-  return '👾 Robotics AI Tutor';
+interface ContextSummary {
+  active_quests: string[];
+  focus_topics: string[];
+  user_emotion: string;
+  key_facts: string[];
 }
 
-function getMissionEmoji(grade: number): string {
-  if (grade <= 4) return '🐠';
-  if (grade <= 7) return '🚀';
-  return '👾';
+// ─── Welcome message generator ───────────────────────────────────
+function getWelcomeMessage(mascotName: string, userName: string): string {
+  return `Welcome back to **Focus Quest**, ${userName || 'Hero'}! 🎮✨
+
+I'm **${mascotName}**, your personal AI mentor and focus coach.
+
+I remember everything we've worked on together, and I'm here to help you level up your learning journey! ⚔️💎
+
+**What would you like to do today?**
+- 📚 Study a subject?
+- 🎯 Set a new focus goal?
+- 💪 Get motivated?
+- 🗺️ Check your progress?`;
 }
 
-// ─── Finny's Starting Message ─────────────────────────────
-const FINNY_STARTING_MESSAGE = `Hi hi hi! 👋 I'm Finny the Focus Friend! Welcome to Focus Quest! 
-To give you the best help and fun avatar, please tell me your standard:
-🌊 1st to 4th Std (Sea World)
-🚀 5th to 7th Std (Space Adventure)
-🤖 8th to 10th Std (Robotics & AI)
-
-Which one are you in? Let's start our learning adventure!`;
-
-// ─── Gemini API key pool (auto-rotates on quota errors) ──
-const GEMINI_API_KEYS: string[] = [
-  import.meta.env.VITE_GEMINI_API_KEY,
-  import.meta.env.VITE_GEMINI_API_KEY_2,
-  import.meta.env.VITE_GEMINI_API_KEY_3,
-  import.meta.env.VITE_GEMINI_API_KEY_4,
-  import.meta.env.VITE_GEMINI_API_KEY_5,
-  import.meta.env.VITE_GEMINI_API_KEY_6,
-  import.meta.env.VITE_GEMINI_API_KEY_7,
-  import.meta.env.VITE_GEMINI_API_KEY_8,
-  import.meta.env.VITE_GEMINI_API_KEY_9,
-  import.meta.env.VITE_GEMINI_API_KEY_10,
-  import.meta.env.VITE_GEMINI_API_KEY_11,
-  import.meta.env.VITE_GEMINI_API_KEY_12,
-  import.meta.env.VITE_GEMINI_API_KEY_13,
-  import.meta.env.VITE_GEMINI_API_KEY_14,
-  import.meta.env.VITE_GEMINI_API_KEY_15,
-  import.meta.env.VITE_GEMINI_API_KEY_16,
-].filter(Boolean);
-
-// ─── Gemini API call ─────────────────────────────────────
-async function callGemini(
-  history: Message[],
-  userMessage: string,
-  grade: number
-): Promise<string> {
-  if (GEMINI_API_KEYS.length === 0) {
-    return "I'm having trouble connecting right now. But let's keep going! 🚀\n\nIs there anything else I can help you with?";
-  }
-
-  const filteredHistory = history.filter((_, idx) => !(idx === 0 && history[0].role === 'assistant'));
-  const contents = [
-    ...filteredHistory.map(m => ({
-      role: m.role === 'user' ? 'user' : 'model',
-      parts: [{ text: m.text }],
-    })),
-    { role: 'user', parts: [{ text: userMessage }] },
-  ];
-
-  for (let i = 0; i < GEMINI_API_KEYS.length; i++) {
-    const apiKey = GEMINI_API_KEYS[i];
-    try {
-      const res = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            system_instruction: { parts: [{ text: AI_GUIDE_SYSTEM_PROMPT }] },
-            contents,
-            generationConfig: { temperature: 0.7, maxOutputTokens: 500 },
-          }),
-        }
-      );
-
-      if (res.status === 429) { continue; }
-      if (!res.ok) { continue; }
-
-      const data = await res.json();
-      return data.candidates?.[0]?.content?.parts?.[0]?.text ?? "I'm here to help, explorer! 🚀\n\nDo you need help with anything else?";
-    } catch {
-      continue;
-    }
-  }
-
-  return "I'm ready for your next question, explorer! 🚀\n\nIs there anything else I can help you with?";
-}
-
-// ─── Main Component ───────────────────────────────────────
+// ─── Main Component ───────────────────────────────────────────────
 export function AiGuideChat() {
   const { grade, userName, xp, streak } = useGame();
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
-  
-  // Local state to keep track of gamification from chatting
-  const [xpPoints, setXpPoints] = useState(xp);
-  const [focusStreak, setFocusStreak] = useState(streak);
+  const [chatId, setChatId] = useState<string | null>(null);
+  const [contextSummary, setContextSummary] = useState<ContextSummary | null>(null);
+  const [localStats, setLocalStats] = useState({ xp, streak, level: 1 });
+  const [isConnected, setIsConnected] = useState(true); // NLB connectivity status
 
+  const theme = getGradeTheme(grade);
+  const { emoji: mascotEmoji, name: mascotName } = getMascotThemeProps(theme);
   const bottomRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
-  // ── Helper: add a bot message ──────────────────────────
-  const addBotMessage = (text: string) => {
-    setMessages(prev => [...prev, { role: 'assistant', text }]);
-  };
+  // ── Restore session on mount ────────────────────────────────────
+  useEffect(() => {
+    const storedId = sessionStorage.getItem(SESSION_KEY);
+    const storedSummary = sessionStorage.getItem(SUMMARY_KEY);
+    if (storedId) {
+      setChatId(storedId);
+      if (storedSummary) {
+        try { setContextSummary(JSON.parse(storedSummary)); } catch {}
+      }
+    }
+  }, []);
 
-  // ── Seed welcome message on first open ────────────────
+  // ── Seed welcome message on first open ─────────────────────────
   useEffect(() => {
     if (open && messages.length === 0) {
-      setMessages([{ role: 'assistant', text: FINNY_STARTING_MESSAGE }]);
+      setMessages([{
+        role: 'assistant',
+        text: getWelcomeMessage(mascotName, userName),
+        timestamp: new Date().toISOString(),
+      }]);
     }
-  }, [open, messages.length]);
+  }, [open]);
 
+  // ── Auto scroll ─────────────────────────────────────────────────
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, loading]);
 
-  // ── Main send handler ─────────────────────────────────
-  const sendMessage = async () => {
+  // ── Focus input when chat opens ─────────────────────────────────
+  useEffect(() => {
+    if (open) setTimeout(() => inputRef.current?.focus(), 300);
+  }, [open]);
+
+  // ── Initialize (or restore) session on the NLB ─────────────────
+  const ensureSession = useCallback(async (): Promise<string> => {
+    // Validate existing session
+    if (chatId) {
+      try {
+        const res = await fetch(`${NLB_URL}/api/chat/session/${chatId}`);
+        if (res.ok) return chatId;
+      } catch {}
+    }
+
+    // Create new session
+    const res = await fetch(`${NLB_URL}/api/chat/new`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        user_id: userName || 'anonymous',
+        user_stats: { xp, streak, grade, mascotName, userName, level: localStats.level },
+      }),
+    });
+
+    if (!res.ok) throw new Error('Failed to create session');
+    const data = await res.json();
+    sessionStorage.setItem(SESSION_KEY, data.chat_id);
+    setChatId(data.chat_id);
+    return data.chat_id;
+  }, [chatId, xp, streak, grade, mascotName, userName, localStats.level]);
+
+  // ── Send a message via NLB Stream ────────────────────────────────
+  const sendMessage = useCallback(async () => {
     const text = input.trim();
     if (!text || loading) return;
 
-    const userMsg: Message = { role: 'user', text };
+    const userMsg: Message = { role: 'user', text, timestamp: new Date().toISOString() };
     setMessages(prev => [...prev, userMsg]);
     setInput('');
     setLoading(true);
 
-    // Call Gemini as a conversational AI tutor
+    // Create a placeholder for the bot's streaming reply
+    const tempBotMsgId = Date.now().toString();
+    setMessages(prev => [...prev, {
+      role: 'assistant',
+      text: '', // To be filled by stream
+      timestamp: new Date().toISOString(),
+      id: tempBotMsgId,
+    } as any]);
+
     try {
-      let reply = await callGemini(messages, text, grade);
+      const activeChatId = await ensureSession();
+      setIsConnected(true);
 
-      // Parse and apply standard logo change command if generated
-      const logoMatch = reply.match(/\[CHANGE_LOGO:\s*([^\]]+)\]/);
-      if (logoMatch) {
-        reply = reply.replace(/\[CHANGE_LOGO:[^\]]+\]/, '').trim();
-        sessionStorage.setItem('current_finny_logo', logoMatch[1]);
-        window.dispatchEvent(new CustomEvent('finny_logo_change', { detail: logoMatch[1] }));
+      const res = await fetch(`${NLB_URL}/api/chat/stream`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          chat_id: activeChatId,
+          message: text,
+          user_stats: { xp, streak, grade, mascotName, userName, level: localStats.level },
+        }),
+      });
+
+      if (!res.ok) {
+        throw new Error(`Server error ${res.status}`);
       }
 
-      // Add safety fallback if the AI somehow forgot to add a follow-up
-      const hasFollowUp = reply.includes('?') || reply.toLowerCase().includes('help');
-      if (!hasFollowUp) {
-        reply += '\n\nIs there anything else I can help you with?';
-      }
+      setLoading(false); // Hide the "thinking..." indicator early since stream is starting
 
-      addBotMessage(reply);
-
-      // Standard gamification for interacting with the tutor
-      setXpPoints(prev => prev + 5);
+      // Read SSE stream
+      const reader = res.body?.getReader();
+      const decoder = new TextDecoder("utf-8");
       
-      // Update streak once per few interactions, simulated simple logic
-      if (Math.random() > 0.5) setFocusStreak(prev => prev + 1);
+      let finalBotText = "";
 
-    } catch {
-      addBotMessage("Hmm, I'm having a little trouble thinking of the answer right now, but I'm back!\n\nWhat else would you like to learn about? 🎮");
+      if (reader) {
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+
+          const chunkStr = decoder.decode(value, { stream: true });
+          // Split by SSE double newline
+          const events = chunkStr.split("\n\n");
+          
+          for (const event of events) {
+            if (event.startsWith("data: ")) {
+              try {
+                const dataObj = JSON.parse(event.replace("data: ", ""));
+                
+                if (dataObj.type === "meta" && dataObj.chat_id) {
+                  if (dataObj.chat_id !== activeChatId) {
+                     sessionStorage.setItem(SESSION_KEY, dataObj.chat_id);
+                     setChatId(dataObj.chat_id);
+                  }
+                } else if (dataObj.type === "chunk") {
+                  finalBotText += dataObj.text;
+                  setMessages(prev => prev.map(m => 
+                     (m as any).id === tempBotMsgId ? { ...m, text: finalBotText } : m
+                  ));
+                } else if (dataObj.type === "done") {
+                  if (dataObj.context_summary) {
+                    setContextSummary(dataObj.context_summary);
+                    sessionStorage.setItem(SUMMARY_KEY, JSON.stringify(dataObj.context_summary));
+                  }
+                  if (dataObj.character_stats) {
+                    setLocalStats(prev => ({ ...prev, ...dataObj.character_stats }));
+                  }
+                }
+              } catch (e) {
+                // Ignore parsing errors for partial chunks
+              }
+            }
+          }
+        }
+      }
+
+      // Check for logo change commands after stream completes
+      const logoRegex = new RegExp('\\[CHANGE_LOGO:\\\\s*([^\\]]+)\\]');
+      const logoMatch = finalBotText.match(logoRegex);
+      if (logoMatch) {
+         setMessages(prev => prev.map(m => 
+            (m as any).id === tempBotMsgId ? { ...m, text: finalBotText.replace(logoRegex, '').trim() } : m
+         ));
+         sessionStorage.setItem('current_finny_logo', logoMatch[1]);
+         window.dispatchEvent(new CustomEvent('finny_logo_change', { detail: logoMatch[1] }));
+      }
+
+    } catch (err: any) {
+      console.error('[FocusQuest Chat] NLB Stream error:', err);
+      setIsConnected(false);
+
+      // ── Fallback: Direct Gemini API call if NLB is down ────────
+      try {
+        const fallbackReply = await callGeminiFallback(
+          messages.concat(userMsg),
+          text, grade, mascotName, userName, xp, streak
+        );
+        setMessages(prev => prev.map(m => 
+           (m as any).id === tempBotMsgId ? { ...m, text: fallbackReply + '\n\n_(Offline mode — context not saved)_' } : m
+        ));
+      } catch {
+        setMessages(prev => prev.map(m => 
+           (m as any).id === tempBotMsgId ? { ...m, text: `Hmm, I'm having trouble connecting right now 🔌\n\nMake sure the AI Companion server is running:\n\`\`\`\npnpm --filter @workspace/ai-companion dev\n\`\`\`\n\nThen try again! 🚀` } : m
+        ));
+      }
     }
 
     setLoading(false);
-  };
+  }, [input, loading, messages, chatId, ensureSession, xp, streak, grade, mascotName, userName, localStats]);
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
@@ -179,7 +241,7 @@ export function AiGuideChat() {
     }
   };
 
-  // Theme colours based on grade
+  // ─── Theme ─────────────────────────────────────────────────────
   const isJunior = grade <= 4;
   const isMid = grade > 4 && grade <= 7;
   const gradientClass = isJunior
@@ -189,31 +251,37 @@ export function AiGuideChat() {
     : 'from-rose-600 via-orange-500 to-amber-500';
 
   const panelBg = isJunior
-    ? 'rgba(10, 30, 60, 0.96)'
+    ? 'rgba(8, 25, 55, 0.97)'
     : isMid
-    ? 'rgba(20, 10, 50, 0.96)'
-    : 'rgba(20, 10, 10, 0.96)';
+    ? 'rgba(16, 8, 45, 0.97)'
+    : 'rgba(20, 8, 8, 0.97)';
 
-  const fabEmoji = getMissionEmoji(grade);
-  const modeLabel = getGameModeLabel(grade);
+  const modeLabel = `${mascotName} · ${contextSummary?.user_emotion ?? 'Ready to learn'}`;
 
+  // ─── Render ────────────────────────────────────────────────────
   return (
     <>
       {/* Floating Action Button */}
       <motion.button
         id="ai-guide-fab"
         className="fixed bottom-6 right-6 z-50 w-16 h-16 rounded-full text-white text-2xl shadow-2xl flex items-center justify-center border-4 border-white/30"
-        style={{ background: `linear-gradient(135deg, var(--tw-gradient-stops))` }}
         whileHover={{ scale: 1.12, rotate: 8 }}
         whileTap={{ scale: 0.92 }}
         onClick={() => setOpen(v => !v)}
-        animate={{ boxShadow: open ? '0 0 0 0px rgba(255,255,255,0)' : ['0 0 0 0px rgba(255,255,255,0.4)', '0 0 0 12px rgba(255,255,255,0)'] }}
+        animate={{
+          boxShadow: open
+            ? '0 0 0 0px rgba(255,255,255,0)'
+            : ['0 0 0 0px rgba(255,255,255,0.4)', '0 0 0 14px rgba(255,255,255,0)'],
+        }}
         transition={{ boxShadow: { repeat: Infinity, duration: 2 } }}
       >
+        <span className={`absolute inset-0 rounded-full bg-gradient-to-br ${gradientClass} opacity-90`} />
+        {/* NLB connectivity dot */}
         <span
-          className={`absolute inset-0 rounded-full bg-gradient-to-br ${gradientClass} opacity-90`}
+          className={`absolute top-0 right-0 w-3 h-3 rounded-full border-2 border-white ${isConnected ? 'bg-green-400' : 'bg-red-500'}`}
+          title={isConnected ? 'AI Companion Connected' : 'Offline Mode'}
         />
-        <span className="relative z-10">{open ? '✕' : fabEmoji}</span>
+        <span className="relative z-10">{open ? '✕' : mascotEmoji}</span>
       </motion.button>
 
       {/* Chat Panel */}
@@ -225,24 +293,33 @@ export function AiGuideChat() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 40, scale: 0.92 }}
             transition={{ type: 'spring', stiffness: 280, damping: 26 }}
-            className="fixed bottom-28 right-4 z-50 w-[340px] sm:w-[380px] rounded-3xl overflow-hidden flex flex-col shadow-2xl border border-white/10"
-            style={{ height: '520px', background: panelBg }}
+            className="fixed bottom-28 right-4 z-50 w-[340px] sm:w-[400px] rounded-3xl overflow-hidden flex flex-col shadow-2xl border border-white/10"
+            style={{ height: '560px', background: panelBg, backdropFilter: 'blur(24px)' }}
           >
             {/* Header */}
             <div className={`bg-gradient-to-r ${gradientClass} px-4 py-3 flex items-center gap-3`}>
-              <span className="text-2xl">{fabEmoji}</span>
+              <span className="text-2xl">{mascotEmoji}</span>
               <div className="flex-1 min-w-0">
-                <p className="font-black text-white text-sm leading-tight truncate">
-                  FocusQuest AI Guide
-                </p>
+                <p className="font-black text-white text-sm leading-tight truncate">FocusQuest AI Guide</p>
                 <p className="text-white/75 text-[11px] truncate">{modeLabel}</p>
               </div>
-              {/* XP & Streak mini-HUD */}
               <div className="flex gap-2 text-xs font-black">
-                <span className="bg-white/20 text-white px-2 py-0.5 rounded-full">⭐ {xpPoints} XP</span>
-                <span className="bg-white/20 text-white px-2 py-0.5 rounded-full">🔥 {focusStreak}</span>
+                <span className="bg-white/20 text-white px-2 py-0.5 rounded-full">⭐ {localStats.xp} XP</span>
+                <span className="bg-white/20 text-white px-2 py-0.5 rounded-full">Lv.{localStats.level}</span>
+                <span className="bg-white/20 text-white px-2 py-0.5 rounded-full">🔥 {localStats.streak}</span>
               </div>
             </div>
+
+            {/* Context Summary Badge */}
+            {contextSummary && contextSummary.focus_topics.length > 0 && (
+              <div className="px-3 py-1.5 bg-white/5 border-b border-white/10 flex gap-1.5 flex-wrap">
+                {contextSummary.focus_topics.slice(0, 3).map((topic, i) => (
+                  <span key={i} className="text-[10px] bg-white/15 text-white/70 px-2 py-0.5 rounded-full">
+                    📚 {topic}
+                  </span>
+                ))}
+              </div>
+            )}
 
             {/* Messages */}
             <div className="flex-1 overflow-y-auto px-3 py-4 space-y-3 scrollbar-thin">
@@ -256,7 +333,7 @@ export function AiGuideChat() {
                     className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
                   >
                     {msg.role === 'assistant' && (
-                      <span className="mr-2 mt-1 text-lg flex-shrink-0">{fabEmoji}</span>
+                      <span className="mr-2 mt-1 text-lg flex-shrink-0">{mascotEmoji}</span>
                     )}
                     <div
                       className={`max-w-[82%] px-3 py-2 rounded-2xl text-sm whitespace-pre-wrap leading-relaxed font-medium ${
@@ -271,14 +348,15 @@ export function AiGuideChat() {
                 ))}
               </AnimatePresence>
 
+              {/* Typing indicator */}
               {loading && (
-               <motion.div
+                <motion.div
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   className="flex items-center gap-2 pl-2"
                 >
-                  <span className="text-lg">{fabEmoji}</span>
-                  <div className="bg-white/10 border border-white/10 rounded-2xl px-4 py-2 flex gap-1.5">
+                  <span className="text-lg">{mascotEmoji}</span>
+                  <div className="bg-white/10 border border-white/10 rounded-2xl px-4 py-2.5 flex gap-1.5">
                     {[0, 1, 2].map(n => (
                       <motion.span
                         key={n}
@@ -288,21 +366,25 @@ export function AiGuideChat() {
                       />
                     ))}
                   </div>
+                  <span className="text-white/30 text-[10px]">thinking...</span>
                 </motion.div>
               )}
               <div ref={bottomRef} />
             </div>
 
             {/* Input */}
-            <div className="px-3 pb-3 pt-2 border-t border-white/10 flex gap-2">
-              <input
+            <div className="px-3 pb-4 pt-2 border-t border-white/10 flex gap-2 items-end">
+              <textarea
                 id="ai-guide-input"
-                className="flex-1 bg-white/10 text-white placeholder-white/40 rounded-2xl px-4 py-2.5 text-sm font-medium outline-none border border-white/10 focus:border-white/30 transition-colors"
-                placeholder="Ask me a question! ✨"
+                ref={inputRef as any}
+                rows={1}
+                className="flex-1 bg-white/10 text-white placeholder-white/40 rounded-2xl px-4 py-2.5 text-sm font-medium outline-none border border-white/10 focus:border-white/30 transition-colors resize-none"
+                placeholder="Ask me anything! ✨"
                 value={input}
                 onChange={e => setInput(e.target.value)}
                 onKeyDown={handleKeyDown}
                 disabled={loading}
+                style={{ maxHeight: '100px', overflowY: 'auto' }}
               />
               <motion.button
                 id="ai-guide-send"
@@ -310,7 +392,7 @@ export function AiGuideChat() {
                 whileTap={{ scale: 0.92 }}
                 onClick={sendMessage}
                 disabled={loading || !input.trim()}
-                className={`w-10 h-10 rounded-xl flex items-center justify-center text-white font-black text-lg transition-opacity ${
+                className={`w-10 h-10 rounded-xl flex items-center justify-center text-white font-black text-lg transition-opacity flex-shrink-0 ${
                   loading || !input.trim() ? 'opacity-40 cursor-not-allowed' : 'opacity-100'
                 } bg-gradient-to-br ${gradientClass}`}
               >
@@ -322,4 +404,57 @@ export function AiGuideChat() {
       </AnimatePresence>
     </>
   );
+}
+
+// ─── Fallback: Direct Gemini API (when NLB is offline) ────────────────
+const GEMINI_FALLBACK_KEYS: string[] = [
+  import.meta.env.VITE_GEMINI_API_KEY,
+  import.meta.env.VITE_GEMINI_API_KEY_2,
+  import.meta.env.VITE_GEMINI_API_KEY_3,
+].filter(Boolean);
+
+async function callGeminiFallback(
+  history: Message[],
+  userMessage: string,
+  grade: number,
+  mascotName: string,
+  userName: string,
+  xp: number,
+  streak: number
+): Promise<string> {
+  const contents = [
+    ...history.filter((_, i) => !(i === 0 && history[0].role === 'assistant')).map(m => ({
+      role: m.role === 'user' ? 'user' : 'model',
+      parts: [{ text: m.text }],
+    })),
+    { role: 'user', parts: [{ text: userMessage }] },
+  ];
+
+  const sysPrompt = `You are ${mascotName}, the AI mentor in Focus Quest. 
+User: ${userName}, Grade ${grade}, XP: ${xp}, Streak: ${streak}.
+Be encouraging, gamified, and educational. Always end with a question.`;
+
+  for (const apiKey of GEMINI_FALLBACK_KEYS) {
+    for (const model of ['gemini-2.5-flash', 'gemini-1.5-flash']) {
+      try {
+        const res = await fetch(
+          `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              system_instruction: { parts: [{ text: sysPrompt }] },
+              contents,
+              generationConfig: { temperature: 0.7, maxOutputTokens: 800 },
+            }),
+          }
+        );
+        if (!res.ok) continue;
+        const data = await res.json();
+        const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+        if (text) return text;
+      } catch { continue; }
+    }
+  }
+  throw new Error('All fallback keys exhausted');
 }

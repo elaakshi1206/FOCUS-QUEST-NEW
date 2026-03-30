@@ -28,6 +28,7 @@ export interface UserProfile {
   focusHistory: FocusSession[];
   selectedSubjects: string[];
   selectedTopics: Record<string, string[]>;
+  customSubjects: string[];
   equipment: EquipmentState;
 }
 
@@ -43,6 +44,7 @@ export interface GameState extends UserProfile {
   resetGame: () => void;
   setSelectedSubjects: (subjects: string[]) => void;
   setSelectedTopics: (topics: Record<string, string[]>) => void;
+  addCustomSubject: (subject: string) => void;
   setEquipment: (equipment: Partial<EquipmentState>) => void;
   logout: () => void;
 }
@@ -83,6 +85,7 @@ function defaultProfile(userName: string = ''): UserProfile {
     focusHistory: [],
     selectedSubjects: [],
     selectedTopics: {},
+    customSubjects: [],
     equipment: { outfit: 'o_outfit1', vehicle: 'o_vehicle1', accessory: 'o_acc1' },
   };
 }
@@ -151,6 +154,14 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
   const setSelectedTopics = (selectedTopics: Record<string, string[]>) =>
     persist(prev => ({ ...prev, selectedTopics }));
 
+  const addCustomSubject = (subject: string) => {
+    persist(prev => {
+      const trimmed = subject.trim();
+      if (!trimmed || prev.customSubjects.includes(trimmed)) return prev;
+      return { ...prev, customSubjects: [...prev.customSubjects, trimmed] };
+    });
+  };
+
   const setEquipment = (partial: Partial<EquipmentState>) =>
     persist(prev => ({ ...prev, equipment: { ...prev.equipment, ...partial } }));
 
@@ -218,6 +229,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       resetGame,
       setSelectedSubjects,
       setSelectedTopics,
+      addCustomSubject,
       setEquipment,
       logout,
     }}>

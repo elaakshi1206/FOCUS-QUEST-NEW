@@ -1,0 +1,16 @@
+{
+  "chatId": "a5e9b3b0-0e73-4fdb-98d3-9eb143b66fce",
+  "userId": "hero_001",
+  "history": [
+    {
+      "role": "user",
+      "text": "Hello! I need help staying focused today."
+    },
+    {
+      "role": "assistant",
+      "text": "My focus crystals are offline right now, hero! 🌀 No API keys configured. Please check your .env file."
+    }
+  ],
+  "createdAt": "2026-03-29T19:30:33.077Z",
+  "updatedAt": "2026-03-29T19:30:33.094Z"
+}

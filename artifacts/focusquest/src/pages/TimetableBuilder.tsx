@@ -16,7 +16,6 @@ interface TimeBlock {
   icon: string;
 }
 
-// ── static data ───────────────────────────────────────────────────
 const SUBJECT_CHIPS = [
   { id: 'Math', icon: '🔢', color: 'bg-blue-500/20 border-blue-400/40 text-blue-300' },
   { id: 'Science', icon: '🔬', color: 'bg-green-500/20 border-green-400/40 text-green-300' },
@@ -26,6 +25,16 @@ const SUBJECT_CHIPS = [
   { id: 'Social Studies', icon: '🌍', color: 'bg-amber-500/20 border-amber-400/40 text-amber-300' },
   { id: 'Computer', icon: '💻', color: 'bg-cyan-500/20 border-cyan-400/40 text-cyan-300' },
   { id: 'Sanskrit', icon: '📜', color: 'bg-rose-500/20 border-rose-400/40 text-rose-300' },
+];
+
+const HIGH_SCHOOL_SUBJECT_CHIPS = [
+  { id: 'Mathematics', icon: '➗', color: 'bg-blue-500/20 border-blue-400/40 text-blue-300' },
+  { id: 'Physics', icon: '⚛️', color: 'bg-cyan-500/20 border-cyan-400/40 text-cyan-300' },
+  { id: 'Chemistry', icon: '🧪', color: 'bg-emerald-500/20 border-emerald-400/40 text-emerald-300' },
+  { id: 'Biology', icon: '🧬', color: 'bg-lime-500/20 border-lime-400/40 text-lime-300' },
+  { id: 'English', icon: '📚', color: 'bg-purple-500/20 border-purple-400/40 text-purple-300' },
+  { id: 'Computer Science', icon: '💻', color: 'bg-indigo-500/20 border-indigo-400/40 text-indigo-300' },
+  { id: 'History', icon: '🌍', color: 'bg-amber-500/20 border-amber-400/40 text-amber-300' },
 ];
 
 const ACTIVITY_CHIPS = [
@@ -256,7 +265,7 @@ function GearAnimation() {
 // ── main component ────────────────────────────────────────────────
 export function TimetableBuilder() {
   const [, setLocation] = useLocation();
-  const { grade, focusHistory } = useGame();
+  const { grade, focusHistory, addCustomSubject: saveSubject } = useGame();
   const theme = getGradeTheme(grade);
   const cfg = THEME_CONFIG[theme];
 
@@ -264,9 +273,11 @@ export function TimetableBuilder() {
     ? Math.round(focusHistory.reduce((s, h) => s + h.score, 0) / focusHistory.length)
     : 0;
 
+  const currentSubjectChips = grade >= 8 ? HIGH_SCHOOL_SUBJECT_CHIPS : SUBJECT_CHIPS;
+
   // Form state
   const [schoolEndHour, setSchoolEndHour] = useState(15);
-  const [selectedSubs, setSelectedSubs] = useState<string[]>(['Math', 'Science', 'English']);
+  const [selectedSubs, setSelectedSubs] = useState<string[]>(() => grade >= 8 ? ['Mathematics', 'Physics', 'Chemistry'] : ['Math', 'Science', 'English']);
   const [customSub, setCustomSub] = useState('');
   const [peakFocus, setPeakFocus] = useState<'morning' | 'afterschool' | 'evening'>('afterschool');
   const [selectedActivities, setSelectedActivities] = useState<string[]>([]);
@@ -284,7 +295,12 @@ export function TimetableBuilder() {
   const toggleAct = (id: string) =>
     setSelectedActivities(p => p.includes(id) ? p.filter(s => s !== id) : [...p, id]);
   const addCustomSub = () => {
-    if (customSub.trim()) { setSelectedSubs(p => [...p, customSub.trim()]); setCustomSub(''); }
+    if (customSub.trim()) {
+      const subject = customSub.trim();
+      setSelectedSubs(p => [...p, subject]);
+      saveSubject(subject);
+      setCustomSub('');
+    }
   };
   const addCustomAct = () => {
     if (customActivity.trim()) { setSelectedActivities(p => [...p, customActivity.trim()]); setCustomActivity(''); }
@@ -375,7 +391,7 @@ export function TimetableBuilder() {
             <h2 className="text-xl font-display font-bold">Main Subjects This Week</h2>
           </div>
           <div className="flex flex-wrap gap-3">
-            {SUBJECT_CHIPS.map(s => (
+            {currentSubjectChips.map(s => (
               <button
                 key={s.id}
                 onClick={() => toggleSub(s.id)}
@@ -390,7 +406,7 @@ export function TimetableBuilder() {
               </button>
             ))}
             {/* Custom subjects added */}
-            {selectedSubs.filter(s => !SUBJECT_CHIPS.find(c => c.id === s)).map(s => (
+            {selectedSubs.filter(s => !currentSubjectChips.find(c => c.id === s)).map(s => (
               <button
                 key={s}
                 onClick={() => toggleSub(s)}

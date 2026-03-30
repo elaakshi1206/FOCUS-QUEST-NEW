@@ -58,9 +58,8 @@ export function QuestView() {
   };
 
   // Called by QuizEngine when quiz finishes
-  const handleQuizComplete = (score: number, wrongIds: string[]) => {
-    const total = 10; // QuizEngine uses count of 6, score is count correct
-    const accuracy = Math.round((score / 6) * 100);
+  const handleQuizComplete = (score: number, total: number, wrongIds: string[]) => {
+    const accuracy = total > 0 ? Math.round((score / total) * 100) : 0;
     sessionStorage.setItem('lastResult', JSON.stringify({
       questId: quest.id,
       score: accuracy,

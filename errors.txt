@@ -1,0 +1,4 @@
+﻿src/routes/chat.routes.ts(25,22): error TS7030: Not all code paths return a value.
+src/routes/chat.routes.ts(147,25): error TS7030: Not all code paths return a value.
+src/routes/chat.routes.ts(148,48): error TS2345: Argument of type 'string | string[]' is not assignable to parameter of type 'string'.
+  Type 'string[]' is not assignable to type 'string'.

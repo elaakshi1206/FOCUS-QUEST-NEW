@@ -1,0 +1,2 @@
+﻿src/services/chat.service.ts(4,10): error TS2724: '"./llm.service.js"' has no exported member named 'llmService'. Did you mean 'LLMService'?
+src/services/chat.service.ts(4,22): error TS2305: Module '"./llm.service.js"' has no exported member 'LlmMessage'.

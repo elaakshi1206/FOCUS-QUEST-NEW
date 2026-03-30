@@ -1,0 +1,40 @@
+{
+  "chat_id": "77d63ec9-0575-420d-963a-e4b06e973c6f",
+  "user_id": "user_123",
+  "messages": [
+    {
+      "role": "user",
+      "content": "This is test message 1 about learning math.",
+      "timestamp": "2026-03-29T19:51:52.379Z"
+    },
+    {
+      "role": "assistant",
+      "content": "I'm having a moment of brain-fog, Hero! 🧠⚡ Let me recharge — ask me again!",
+      "timestamp": "2026-03-29T19:52:34.624Z"
+    },
+    {
+      "role": "user",
+      "content": "This is test message 2 about learning math.",
+      "timestamp": "2026-03-29T19:52:34.735Z"
+    },
+    {
+      "role": "assistant",
+      "content": "I'm having a moment of brain-fog, Hero! 🧠⚡ Let me recharge — ask me again!",
+      "timestamp": "2026-03-29T19:53:16.756Z"
+    }
+  ],
+  "context_summary": null,
+  "raw_summary_text": "Summary generation pending (3 messages so far).",
+  "quest_data": {
+    "active_quests": [],
+    "last_quest_update": "2026-03-29T19:51:52.140Z"
+  },
+  "character_stats": {
+    "level": 5,
+    "xp": 10,
+    "streak": 0,
+    "userName": "Bob"
+  },
+  "last_updated": "2026-03-29T19:53:16.756Z",
+  "version": "2.0"
+}

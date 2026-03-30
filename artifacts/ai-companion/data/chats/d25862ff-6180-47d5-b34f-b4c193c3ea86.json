@@ -1,0 +1,17 @@
+{
+  "chat_id": "d25862ff-6180-47d5-b34f-b4c193c3ea86",
+  "user_id": "default_user",
+  "messages": [],
+  "quest_data": {
+    "active_quests": [],
+    "last_quest_update": "2026-03-29T18:22:24.236Z"
+  },
+  "character_stats": {
+    "level": 5,
+    "xp": 20,
+    "streak": 3,
+    "userName": "TestHero"
+  },
+  "last_updated": "2026-03-29T18:22:24.236Z",
+  "version": "1.0"
+}

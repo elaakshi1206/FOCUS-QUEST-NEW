@@ -36,7 +36,7 @@ import { Rewind, CheckCircle2, XCircle, ChevronRight, Youtube } from 'lucide-rea
 interface Props {
   questId: string;
   focusLevel?: number;
-  onComplete: (score: number, wrongIds: string[]) => void;
+  onComplete: (score: number, total: number, wrongIds: string[]) => void;
 }
 
 // ─── Sparkle component ────────────────────────────────────────────────────────
