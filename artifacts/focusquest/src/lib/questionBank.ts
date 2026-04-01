@@ -14,6 +14,8 @@
  *   image      – emoji/image prompt + MCQ
  */
 
+import { QUESTS } from '@/lib/data';
+
 export type QuestionType = 'mcq' | 'truefalse' | 'fillblank' | 'match' | 'sequence' | 'image' | 'voice';
 
 export interface MatchPair {
@@ -335,4 +337,34 @@ export function getRandomQuestions(
   }
 
   return shuffle(pool).slice(0, Math.min(count, pool.length));
+}
+
+/**
+ * Returns separated pools of questions by difficulty level (shuffled).
+ * Useful for the Adaptive Difficulty engine.
+ */
+export function getQuestionPools(questId: string): Record<1 | 2 | 3, RichQuestion[]> {
+  let bank = QUESTION_BANK[questId] ?? [];
+  
+  // If the bank is empty, attempt to fetch from inline QUESTS
+  if (bank.length === 0) {
+    const questData = QUESTS.find((q: any) => q.id === questId);
+    if (questData && questData.quiz) {
+      bank = questData.quiz.map((q: any) => ({
+        id: q.id,
+        type: 'mcq' as const,
+        question: q.question,
+        options: q.options,
+        correctIndex: q.correctIndex,
+        hint: q.hint,
+        difficulty: 2 as const, // inline quizzes default to medium
+      }));
+    }
+  }
+
+  return {
+    1: shuffle(bank.filter(q => q.difficulty === 1)),
+    2: shuffle(bank.filter(q => q.difficulty === 2)),
+    3: shuffle(bank.filter(q => q.difficulty === 3)),
+  };
 }

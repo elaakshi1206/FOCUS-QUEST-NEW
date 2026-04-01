@@ -13,7 +13,7 @@
  */
 
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { type RichQuestion, shuffle, getRandomQuestions } from '@/lib/questionBank';
+import { type RichQuestion, shuffle, getRandomQuestions, getQuestionPools } from '@/lib/questionBank';
 import { QUESTS } from '@/lib/data';
 
 export interface ShuffledQuestion extends RichQuestion {
@@ -43,6 +43,13 @@ export interface QuizState {
   sequenceOrder: string[];
   attemptCount: number;
   voiceFeedback: string | null;
+
+  // --- Adaptive Difficulty (DDA) ---
+  currentDifficulty: 1 | 2 | 3;
+  correctStreak: number;
+  wrongStreak: number;
+  adaptiveMessage: { text: string; type: 'up' | 'down' | 'speed' } | null;
+  totalQuestions: number;
 }
 
 export interface QuizActions {
@@ -84,31 +91,32 @@ function buildShuffled(q: RichQuestion): ShuffledQuestion {
 
 const QUESTION_COUNT = 6;
 const SECONDS_PER_Q = 18;
+const MAX_QUESTIONS = 10;
 
 export function useQuiz(questId: string, focusLevel = 50, onComplete?: (score: number, total: number, wrongIds: string[]) => void) {
-  // ── Session initialisation ──────────────────────────────────────────────────
-  const buildSession = useCallback(() => {
-    let raw = getRandomQuestions(questId, QUESTION_COUNT, focusLevel, questId.startsWith('math'));
-    if (raw.length === 0) {
-      // Fallback to inline quest data
-      const questData = QUESTS.find(q => q.id === questId);
-      if (questData && questData.quiz) {
-         raw = questData.quiz.map(q => ({
-           id: q.id,
-           type: 'mcq' as const,
-           question: q.question,
-           options: q.options,
-           correctIndex: q.correctIndex,
-           hint: q.hint,
-           difficulty: 2 as const,
-         }));
-      }
-    }
-    return raw.map(buildShuffled);
-  }, [questId, focusLevel]);
+  // A ref to store the question pools (easy, med, hard) which act as our queue
+  const poolsRef = useRef<Record<1 | 2 | 3, ReturnType<typeof buildShuffled>[]>>({ 1: [], 2: [], 3: [] });
+  // A ref to check if initialized so double useEffect doesn't duplicate
+  const isInitialized = useRef(false);
 
-  const [state, setState] = useState<QuizState>(() => ({
-    questions: buildSession(),
+  // Helper to pop a question from a specific difficulty pool (with fallbacks)
+  const popQuestion = useCallback((targetDiff: 1 | 2 | 3): ShuffledQuestion => {
+    let pool = poolsRef.current[targetDiff];
+    if (pool.length > 0) return pool.pop()!;
+    
+    // Fallback logic if the target pool is empty
+    const fallbackDiffs = targetDiff === 1 ? [2, 3] : targetDiff === 3 ? [2, 1] : [1, 3];
+    for (const d of fallbackDiffs) {
+      pool = poolsRef.current[d as 1 | 2 | 3];
+      if (pool.length > 0) return pool.pop()!;
+    }
+    
+    // Absolute fallback (should never occur if banks have enough questions)
+    return buildShuffled({ id: `fallback_${Date.now()}`, type: 'mcq', question: 'No extra questions available.', options: ['OK'], correctIndex: 0, hint: '', difficulty: targetDiff });
+  }, []);
+
+  const [state, setState] = useState<QuizState>({
+    questions: [],
     currentIndex: 0,
     selectedAnswer: null,
     isAnswered: false,
@@ -124,7 +132,42 @@ export function useQuiz(questId: string, focusLevel = 50, onComplete?: (score: n
     sequenceOrder: [],
     attemptCount: 1,
     voiceFeedback: null,
-  }));
+    // DDA states
+    currentDifficulty: 2, // Start at medium
+    correctStreak: 0,
+    wrongStreak: 0,
+    adaptiveMessage: null,
+    totalQuestions: MAX_QUESTIONS,
+  });
+
+  // ── Session initialisation ──────────────────────────────────────────────────
+  useEffect(() => {
+    if (isInitialized.current) return;
+    
+    // Load pools from QuestionBank
+    const rawPools = getQuestionPools(questId) as Record<1 | 2 | 3, RichQuestion[]>;
+
+    // Convert into Shuffled format and store in ref
+    poolsRef.current = {
+      1: rawPools[1].map(buildShuffled),
+      2: rawPools[2].map(buildShuffled),
+      3: rawPools[3].map(buildShuffled),
+    };
+
+    // Determine initial difficulty based on focusLevel if wanted, otherwise stick to 2.
+    const startDiff = focusLevel < 35 ? 1 : focusLevel > 70 ? 3 : 2;
+
+    const firstQuestion = popQuestion(startDiff);
+
+    setState(s => ({
+      ...s,
+      questions: [firstQuestion],
+      currentDifficulty: startDiff,
+      sequenceOrder: firstQuestion.type === 'sequence' ? (firstQuestion.shuffledSequence ?? []) : [],
+    }));
+
+    isInitialized.current = true;
+  }, [questId, focusLevel, popQuestion]);
 
   // Expose mutable ref for timer callback to access latest isAnswered
   const answeredRef = useRef(state.isAnswered);
@@ -132,13 +175,6 @@ export function useQuiz(questId: string, focusLevel = 50, onComplete?: (score: n
 
   // Current question shorthand
   const current = state.questions[state.currentIndex];
-
-  // ── Initialise sequence order when question changes ─────────────────────────
-  useEffect(() => {
-    if (current?.type === 'sequence') {
-      setState(s => ({ ...s, sequenceOrder: current.shuffledSequence ?? [] }));
-    }
-  }, [state.currentIndex, current?.type]);
 
   // ── Countdown timer ─────────────────────────────────────────────────────────
   useEffect(() => {
@@ -158,15 +194,12 @@ export function useQuiz(questId: string, focusLevel = 50, onComplete?: (score: n
     return () => clearInterval(id);
   }, [state.currentIndex, state.isAnswered, state.timeLeft, current?.type]);
 
-  // ── Anti-cheat: tab / window blur ───────────────────────────────────────────
+  // ── Anti-cheat: window blur ───────────────────────────────────────────────
   useEffect(() => {
     const onBlur = () => {
-      if (answeredRef.current) return; // ignore if already answered
-      const reshuffled = buildSession();
+      if (answeredRef.current) return;
       setState(s => ({
         ...s,
-        questions: reshuffled,
-        currentIndex: 0,
         selectedAnswer: null,
         isAnswered: false,
         score: Math.max(0, s.score - 5),
@@ -176,19 +209,51 @@ export function useQuiz(questId: string, focusLevel = 50, onComplete?: (score: n
         penaltyCount: s.penaltyCount + 1,
         matchSelections: {},
         fillInput: '',
-        sequenceOrder: reshuffled[0]?.shuffledSequence ?? [],
         attemptCount: 1,
         voiceFeedback: null,
       }));
     };
     window.addEventListener('blur', onBlur);
     return () => window.removeEventListener('blur', onBlur);
-  }, [buildSession]);
+  }, []);
 
-  // ── Internal helpers ────────────────────────────────────────────────────────
+  // ── Dynamic Internal helpers ────────────────────────────────────────────────
+
   function _recordAnswer(correct: boolean, answerLabel: string) {
     setState(s => {
       const newWrong = correct ? s.wrongIds : [...s.wrongIds, s.questions[s.currentIndex].id];
+      const timeTaken = SECONDS_PER_Q - s.timeLeft;
+      
+      let nextDiff = s.currentDifficulty;
+      let nextCorrectStreak = correct ? s.correctStreak + 1 : 0;
+      let nextWrongStreak = !correct ? s.wrongStreak + 1 : 0;
+      let newMessage: QuizState['adaptiveMessage'] = null;
+
+      // Fast response boost (answered correctly in under 5 seconds)
+      if (correct && timeTaken < 5 && s.questions[s.currentIndex].type !== 'voice') {
+          nextCorrectStreak += 1; // Bonus streak point for speed
+          newMessage = { text: '⚡ Incredible Speed! Difficulty Boost!', type: 'speed' };
+      }
+
+      // DDA Logic: Level Up
+      if (nextCorrectStreak >= 2 && nextDiff < 3) {
+        nextDiff += 1;
+        nextCorrectStreak = 0; // reset streak after leveling up
+        newMessage = { text: '🧠 Great job! The challenge is increasing!', type: 'up' };
+      } 
+      else if (nextCorrectStreak >= 3 && nextDiff === 3) {
+        // Just encouragement if already at max
+        newMessage = { text: '🔥 Unstoppable! Max difficulty maintained!', type: 'up' };
+        nextCorrectStreak = 0; 
+      }
+
+      // DDA Logic: Level Down
+      if (nextWrongStreak >= 3 && nextDiff > 1) {
+        nextDiff -= 1;
+        nextWrongStreak = 0; // reset streak after leveling down
+        newMessage = { text: '💡 Let\'s simplify this concept and try again!', type: 'down' };
+      }
+
       return {
         ...s,
         isAnswered: true,
@@ -196,13 +261,17 @@ export function useQuiz(questId: string, focusLevel = 50, onComplete?: (score: n
         score: correct ? s.score + 1 : s.score,
         wrongIds: newWrong,
         showHint: !correct,
+        currentDifficulty: nextDiff as 1 | 2 | 3,
+        correctStreak: nextCorrectStreak,
+        wrongStreak: nextWrongStreak,
+        adaptiveMessage: newMessage,
       };
     });
   }
 
   // ── Public actions ──────────────────────────────────────────────────────────
   const selectMcq = useCallback((idx: number) => {
-    if (state.isAnswered) return;
+    if (state.isAnswered || !current) return;
     const correct = idx === current.mappedCorrectIndex;
     _recordAnswer(correct, String(idx));
   }, [state.isAnswered, current]);
@@ -212,7 +281,7 @@ export function useQuiz(questId: string, focusLevel = 50, onComplete?: (score: n
   }, []);
 
   const submitFill = useCallback(() => {
-    if (state.isAnswered) return;
+    if (state.isAnswered || !current) return;
     const expected = current.answer?.trim().toLowerCase() ?? '';
     const given = state.fillInput.trim().toLowerCase();
     _recordAnswer(given === expected, given);
@@ -223,7 +292,7 @@ export function useQuiz(questId: string, focusLevel = 50, onComplete?: (score: n
   }, []);
 
   const submitMatch = useCallback(() => {
-    if (state.isAnswered) return;
+    if (state.isAnswered || !current) return;
     const pairs = current.pairs ?? [];
     const allCorrect = pairs.every(p => state.matchSelections[p.left] === p.right);
     _recordAnswer(allCorrect, JSON.stringify(state.matchSelections));
@@ -239,30 +308,40 @@ export function useQuiz(questId: string, focusLevel = 50, onComplete?: (score: n
   }, []);
 
   const submitSequence = useCallback(() => {
-    if (state.isAnswered) return;
+    if (state.isAnswered || !current) return;
     const correct = JSON.stringify(state.sequenceOrder) === JSON.stringify(current.sequence);
     _recordAnswer(correct, JSON.stringify(state.sequenceOrder));
   }, [state.isAnswered, state.sequenceOrder, current]);
 
   const submitVoice = useCallback((correct: boolean, isPartial: boolean, feedback: string) => {
-    if (state.isAnswered) return;
-    
-    // Attempt logic:
-    // If correct -> immediately record correct
-    // If not correct & attemptCount == 1 -> increment attempt, show feedback, DON'T flag as answered yet
-    // If not correct & attemptCount >= 2 -> record wrong
+    if (state.isAnswered || !current) return;
     
     setState(s => {
       if (!correct && s.attemptCount < 2) {
-        // Retry path
         return {
           ...s,
           attemptCount: s.attemptCount + 1,
           voiceFeedback: feedback,
         };
       } else {
-        // Final answer path
+        const timeTaken = SECONDS_PER_Q - s.timeLeft;
         const newWrong = correct ? s.wrongIds : [...s.wrongIds, s.questions[s.currentIndex].id];
+        let nextDiff = s.currentDifficulty;
+        let nextCorrectStreak = correct ? s.correctStreak + 1 : 0;
+        let nextWrongStreak = !correct ? s.wrongStreak + 1 : 0;
+        let newMessage: QuizState['adaptiveMessage'] = null;
+
+        if (nextCorrectStreak >= 2 && nextDiff < 3) {
+          nextDiff += 1;
+          nextCorrectStreak = 0;
+          newMessage = { text: '🧠 Great job! The challenge is increasing!', type: 'up' };
+        } 
+        else if (nextWrongStreak >= 3 && nextDiff > 1) {
+          nextDiff -= 1;
+          nextWrongStreak = 0;
+          newMessage = { text: '💡 Let\'s simplify this concept and try again!', type: 'down' };
+        }
+
         return {
           ...s,
           isAnswered: true,
@@ -271,21 +350,28 @@ export function useQuiz(questId: string, focusLevel = 50, onComplete?: (score: n
           wrongIds: newWrong,
           showHint: !correct,
           voiceFeedback: feedback,
+          currentDifficulty: nextDiff as 1 | 2 | 3,
+          correctStreak: nextCorrectStreak,
+          wrongStreak: nextWrongStreak,
+          adaptiveMessage: newMessage,
         };
       }
     });
-  }, [state.isAnswered]);
+  }, [state.isAnswered, current]);
 
   const nextQuestion = useCallback(() => {
     setState(s => {
       const nextIdx = s.currentIndex + 1;
-      if (nextIdx >= s.questions.length) {
-        // Quiz finished — call onComplete after render
+      if (nextIdx >= s.totalQuestions) {
         return { ...s };
       }
-      const nextQ = s.questions[nextIdx];
+      
+      const nextQ = popQuestion(s.currentDifficulty);
+      const newQuestions = [...s.questions, nextQ];
+      
       return {
         ...s,
+        questions: newQuestions,
         currentIndex: nextIdx,
         selectedAnswer: null,
         isAnswered: false,
@@ -296,21 +382,22 @@ export function useQuiz(questId: string, focusLevel = 50, onComplete?: (score: n
         sequenceOrder: nextQ.type === 'sequence' ? (nextQ.shuffledSequence ?? []) : [],
         attemptCount: 1,
         voiceFeedback: null,
+        adaptiveMessage: null, // Clear message on next question
       };
     });
-  }, []);
+  }, [popQuestion]);
 
   // Trigger onComplete when quiz ends
   useEffect(() => {
     let t: ReturnType<typeof setTimeout>;
-    if (state.isAnswered && state.currentIndex === state.questions.length - 1) {
+    if (state.isAnswered && state.currentIndex === state.totalQuestions - 1) {
       const delay = state.wrongIds.includes(current?.id ?? '') ? 3200 : 1800;
       t = setTimeout(() => {
-        onComplete?.(state.score, state.questions.length, state.wrongIds);
+        onComplete?.(state.score, state.totalQuestions, state.wrongIds);
       }, delay);
     }
     return () => clearTimeout(t);
-  }, [state.isAnswered, state.currentIndex, state.questions.length]);
+  }, [state.isAnswered, state.currentIndex, state.totalQuestions, current, state.score, state.wrongIds, onComplete]);
 
   const dismissAntiCheat = useCallback(() => {
     setState(s => ({ ...s, antiCheatTriggered: false }));

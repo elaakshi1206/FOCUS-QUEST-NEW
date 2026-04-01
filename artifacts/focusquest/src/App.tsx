@@ -20,6 +20,9 @@ import { Results } from "@/pages/Results";
 import { Rewards } from "@/pages/Rewards";
 import { Customize } from "@/pages/Customize";
 import { Analytics } from "@/pages/Analytics";
+import { TeamDashboard } from "@/pages/TeamDashboard";
+import { LeaderboardPage } from "@/pages/LeaderboardPage";
+import { MatchmakingScreen } from "@/pages/MatchmakingScreen";
 
 const queryClient = new QueryClient();
 
@@ -38,6 +41,9 @@ function Router() {
       <Route path="/rewards" component={Rewards} />
       <Route path="/customize" component={Customize} />
       <Route path="/analytics" component={Analytics} />
+      <Route path="/team" component={TeamDashboard} />
+      <Route path="/leaderboard" component={LeaderboardPage} />
+      <Route path="/matchmaking" component={MatchmakingScreen} />
       <Route component={NotFound} />
     </Switch>
   );

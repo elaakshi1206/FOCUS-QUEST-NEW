@@ -745,7 +745,27 @@ export function QuizEngine({ questId, focusLevel = 50, onComplete }: Props) {
         </div>
 
         {/* Floating progress */}
-        <FloatingProgress current={state.currentIndex} total={state.questions.length} />
+        <FloatingProgress current={state.currentIndex} total={state.totalQuestions} />
+
+        {/* Adaptive Message */}
+        <AnimatePresence>
+          {state.adaptiveMessage && state.isAnswered && (
+            <motion.div
+              initial={{ opacity: 0, height: 0, marginBottom: 0 }}
+              animate={{ opacity: 1, height: 'auto', marginBottom: 16 }}
+              exit={{ opacity: 0, height: 0, marginBottom: 0 }}
+              className="overflow-hidden"
+            >
+               <div className={`p-3 rounded-xl font-bold text-sm text-center ${
+                 state.adaptiveMessage.type === 'up' ? 'bg-fuchsia-500/20 text-fuchsia-600 dark:text-fuchsia-300 border border-fuchsia-500/30' : 
+                 state.adaptiveMessage.type === 'down' ? 'bg-blue-500/20 text-blue-600 dark:text-blue-300 border border-blue-500/30' :
+                 'bg-amber-500/20 text-amber-600 dark:text-amber-300 border border-amber-500/30'
+               }`}>
+                 {state.adaptiveMessage.text}
+               </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {/* Question text */}
         <AnimatePresence mode="wait">
@@ -756,18 +776,24 @@ export function QuizEngine({ questId, focusLevel = 50, onComplete }: Props) {
             exit={{ opacity: 0, y: -20 }}
             className="mb-6"
           >
-            {/* Difficulty badge */}
-            <div className="flex items-center gap-2 mb-3">
-              {Array.from({ length: current.difficulty }).map((_, i) => (
-                <motion.span
-                  key={i}
-                  animate={{ y: [0, -3, 0] }}
-                  transition={{ repeat: Infinity, duration: 1.5, delay: i * 0.2 }}
-                  className="text-yellow-400 text-lg"
-                >
-                  ⭐
-                </motion.span>
-              ))}
+            {/* Difficulty badge & Streak */}
+            <div className="flex items-center justify-between gap-4 mb-3">
+              <div className="flex items-center gap-2">
+                {Array.from({ length: current.difficulty }).map((_, i) => (
+                  <motion.span
+                    key={i}
+                    animate={{ y: [0, -3, 0] }}
+                    transition={{ repeat: Infinity, duration: 1.5, delay: i * 0.2 }}
+                    className="text-yellow-400 text-lg"
+                  >
+                    ⭐
+                  </motion.span>
+                ))}
+              </div>
+              <div className="flex items-center gap-3 text-xs font-bold uppercase tracking-wider">
+                 {state.correctStreak > 0 && <span className="text-green-500 flex items-center gap-1">🔥 Streak {state.correctStreak}</span>}
+                 {state.wrongStreak > 0 && <span className="text-red-400 flex items-center gap-1">⚠️ Misses {state.wrongStreak}</span>}
+              </div>
             </div>
             <h3 className="text-xl sm:text-2xl font-display font-bold text-card-foreground leading-snug">
               {current.question}
@@ -896,7 +922,7 @@ export function QuizEngine({ questId, focusLevel = 50, onComplete }: Props) {
               </motion.div>
 
               {/* Manual next button (shown before auto-advance) */}
-              {state.currentIndex < state.questions.length - 1 && (
+              {state.currentIndex < state.totalQuestions - 1 && (
                 <motion.button
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -909,7 +935,7 @@ export function QuizEngine({ questId, focusLevel = 50, onComplete }: Props) {
                   Next Question <ChevronRight className="w-5 h-5" />
                 </motion.button>
               )}
-              {state.currentIndex === state.questions.length - 1 && (
+              {state.currentIndex === state.totalQuestions - 1 && (
                 <motion.div
                   animate={{ y: [0, -4, 0] }}
                   transition={{ repeat: Infinity, duration: 2 }}

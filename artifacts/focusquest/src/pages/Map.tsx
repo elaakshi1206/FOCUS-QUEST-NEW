@@ -571,6 +571,35 @@ export function Map() {
               🔄 Change Subject
             </motion.button>
           )}
+
+          {/* ⚡ Antigravity quick-access FAB row */}
+          {!showPanel && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.4 }}
+              className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-3 z-20"
+            >
+              {[
+                { href: '/team', emoji: '🛡️', label: 'Team' },
+                { href: '/matchmaking', emoji: '🎯', label: 'Match' },
+                { href: '/leaderboard', emoji: '🏆', label: 'Ranks' },
+              ].map(({ href, emoji, label }) => (
+                <motion.button
+                  key={href}
+                  whileHover={{ scale: 1.1, y: -4 }}
+                  whileTap={{ scale: 0.94 }}
+                  onClick={() => setLocation(href)}
+                  className="flex flex-col items-center gap-1 bg-black/50 backdrop-blur-md border border-white/20 rounded-2xl px-4 py-2.5 shadow-xl text-white hover:bg-black/70 transition-colors"
+                  style={{ fontFamily: "'Fredoka', sans-serif" }}
+                >
+                  <span className="text-xl">{emoji}</span>
+                  <span className="text-[10px] font-black tracking-wide opacity-90">{label}</span>
+                </motion.button>
+              ))}
+            </motion.div>
+          )}
+
         </div>
       </div>
 

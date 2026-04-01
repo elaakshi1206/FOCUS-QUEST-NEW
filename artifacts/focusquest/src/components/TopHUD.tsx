@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useGame } from '@/lib/store';
 import { CHARACTERS } from '@/lib/data';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Flame, Star, Menu, X, ChartBar, Map, Settings, User, LogOut } from 'lucide-react';
+import { Flame, Star, Menu, X, ChartBar, Map, Settings, User, LogOut, Radar, Trophy, Shield } from 'lucide-react';
 import { Link, useLocation } from 'wouter';
 import { MascotLogo } from './MascotLogo';
 
@@ -97,6 +97,13 @@ export function TopHUD() {
               <MenuLink href="/map" icon={<Map />} label="World Map" onClick={() => setMenuOpen(false)} />
               <MenuLink href="/customize" icon={<User />} label="Crew / Avatar" onClick={() => setMenuOpen(false)} />
               <MenuLink href="/analytics" icon={<ChartBar />} label="Focus Stats" onClick={() => setMenuOpen(false)} />
+              {/* ── Antigravity Social Module ── */}
+              <div className="mx-3 my-1 h-px bg-border/40" />
+              <p className="px-3 py-1 text-[10px] font-bold text-primary/70 uppercase tracking-widest">⚡ Antigravity</p>
+              <MenuLink href="/team" icon={<Shield />} label="My Team" onClick={() => setMenuOpen(false)} />
+              <MenuLink href="/matchmaking" icon={<Radar />} label="Find Study Squad" onClick={() => setMenuOpen(false)} />
+              <MenuLink href="/leaderboard" icon={<Trophy />} label="Leaderboard" onClick={() => setMenuOpen(false)} />
+              <div className="mx-3 my-1 h-px bg-border/40" />
               <MenuLink href="/setup" icon={<Settings />} label="Settings" onClick={() => setMenuOpen(false)} />
               <button
                 onClick={handleSwitchUser}
