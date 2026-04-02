@@ -10,7 +10,7 @@ export const teams = pgTable("teams", {
   isPublic: boolean("is_public").default(true).notNull(),
   totalXp: integer("total_xp").default(0).notNull(),
   focusStreak: integer("focus_streak").default(0).notNull(),
-  theme: text("theme").default("ocean").notNull(), // ocean, space, future
+  theme: text("theme").default("ocean").notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 

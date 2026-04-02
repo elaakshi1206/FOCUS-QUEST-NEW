@@ -4,6 +4,8 @@ import { useLocation } from "wouter";
 import { Users, Sword, Plus, LogIn, Copy, Check, Shield, Star, Flame, TrendingUp, ChevronLeft } from "lucide-react";
 import { TeamCard, type TeamCardData } from "@/components/multiplayer/TeamCard";
 import { QuestProgressBar, type QuestData } from "@/components/multiplayer/QuestProgressBar";
+import { ThemeBackground } from "@/components/ThemeBackground";
+import { useGame } from "@/lib/store";
 
 // ─── Mock data ──────────────────────────────────────────────────────────────
 const MOCK_MY_TEAM: TeamCardData & {
@@ -146,12 +148,19 @@ function JoinTeamModal({ onClose }: { onClose: () => void }) {
 // ─── Main page ───────────────────────────────────────────────────────────────
 export function TeamDashboard() {
   const [, navigate] = useLocation();
+  const { theme } = useGame();
   const [myTeam] = useState(MOCK_MY_TEAM);
   const [quests] = useState(MOCK_QUESTS);
   const [showCreate, setShowCreate] = useState(false);
   const [showJoin, setShowJoin] = useState(false);
   const [copied, setCopied] = useState(false);
   const [tab, setTab] = useState<"overview" | "quests" | "members">("overview");
+
+  const themeConfig = {
+    ocean: { icon: '🏴‍☠️', label: 'Pirate Crew', badge: 'Pirates' },
+    space: { icon: '🛸', label: 'Starfleet Squadron', badge: 'Crew' },
+    future: { icon: '🤖', label: 'Neural Team', badge: 'Agents' },
+  }[theme] ?? { icon: '🛡️', label: 'Study Team', badge: 'Team' };
 
   const copyInvite = () => {
     navigator.clipboard.writeText(myTeam.teamId);
@@ -160,18 +169,8 @@ export function TeamDashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-background theme-space relative overflow-hidden">
-      {/* Background stars */}
-      {Array.from({ length: 30 }).map((_, i) => (
-        <div key={i} className="star" style={{
-          width: Math.random() * 2 + 1,
-          height: Math.random() * 2 + 1,
-          top: `${Math.random() * 100}%`,
-          left: `${Math.random() * 100}%`,
-          animationDuration: `${2 + Math.random() * 4}s`,
-          animationDelay: `${Math.random() * 3}s`,
-        }} />
-      ))}
+    <div className="min-h-screen bg-background relative overflow-hidden">
+      <ThemeBackground />
 
       <div className="relative z-10 max-w-lg mx-auto px-4 py-6">
         {/* Header */}
@@ -182,9 +181,9 @@ export function TeamDashboard() {
           </button>
           <div>
             <h1 className="font-display text-2xl font-bold text-foreground flex items-center gap-2">
-              <Shield className="text-primary" size={22} /> My Team
+              <Shield className="text-primary" size={22} /> {themeConfig.icon} My {themeConfig.badge}
             </h1>
-            <p className="text-xs text-muted-foreground">Social learning together</p>
+            <p className="text-xs text-muted-foreground">{themeConfig.label}</p>
           </div>
           <div className="ml-auto flex gap-2">
             <motion.button whileTap={{ scale: 0.94 }}

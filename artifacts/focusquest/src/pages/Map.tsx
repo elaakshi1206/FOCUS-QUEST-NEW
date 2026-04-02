@@ -581,6 +581,7 @@ export function Map() {
               className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-3 z-20"
             >
               {[
+                { href: '/daily-challenge', emoji: '🌟', label: 'Daily' },
                 { href: '/team', emoji: '🛡️', label: 'Team' },
                 { href: '/matchmaking', emoji: '🎯', label: 'Match' },
                 { href: '/leaderboard', emoji: '🏆', label: 'Ranks' },

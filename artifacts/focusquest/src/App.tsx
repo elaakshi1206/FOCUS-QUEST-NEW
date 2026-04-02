@@ -23,6 +23,9 @@ import { Analytics } from "@/pages/Analytics";
 import { TeamDashboard } from "@/pages/TeamDashboard";
 import { LeaderboardPage } from "@/pages/LeaderboardPage";
 import { MatchmakingScreen } from "@/pages/MatchmakingScreen";
+import { ChallengesScreen } from "@/pages/ChallengesScreen";
+import { ActiveChallengeRoom } from "@/pages/ActiveChallengeRoom";
+import { DailyChallengePage } from "@/pages/DailyChallengePage";
 
 const queryClient = new QueryClient();
 
@@ -44,6 +47,9 @@ function Router() {
       <Route path="/team" component={TeamDashboard} />
       <Route path="/leaderboard" component={LeaderboardPage} />
       <Route path="/matchmaking" component={MatchmakingScreen} />
+      <Route path="/challenges" component={ChallengesScreen} />
+      <Route path="/challenge/:challengeId" component={ActiveChallengeRoom} />
+      <Route path="/daily-challenge" component={DailyChallengePage} />
       <Route component={NotFound} />
     </Switch>
   );

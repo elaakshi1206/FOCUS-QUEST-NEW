@@ -9,10 +9,10 @@ export const users = pgTable("users", {
   totalXp: integer("total_xp").default(0).notNull(),
   difficultyLevel: text("difficulty_level").default("Beginner").notNull(), // Beginner, Intermediate, Advanced
   learningTopics: jsonb("learning_topics").$type<string[]>().default([]).notNull(),
+  theme: text("theme").default("ocean").notNull(),
+  grade: integer("grade").default(3).notNull(),
   currentStreak: integer("current_streak").default(0).notNull(),
   improvementRate: integer("improvement_rate").default(0).notNull(),
-  theme: text("theme").default("ocean").notNull(), // ocean, space, future
-  grade: integer("grade").default(3).notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 

@@ -3,6 +3,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useLocation } from "wouter";
 import { Radar, Zap, Search, ChevronLeft, Wifi, CheckCircle2, BookOpen, X } from "lucide-react";
 import { PlayerMatchCard, type MatchedPlayerData } from "@/components/multiplayer/PlayerMatchCard";
+import { ThemeBackground } from "@/components/ThemeBackground";
+import { useGame } from "@/lib/store";
 
 // ─── Mock matched players ─────────────────────────────────────────────────────
 const MOCK_MATCHES: MatchedPlayerData[] = [
@@ -90,6 +92,7 @@ function InvitedBadge() {
 // ─── Main page ─────────────────────────────────────────────────────────────────
 export function MatchmakingScreen() {
   const [, navigate] = useLocation();
+  const { theme } = useGame();
   const [state, setState] = useState<MatchState>("idle");
   const [selectedTopics, setSelectedTopics] = useState<string[]>(["Algebra"]);
   const [teamSize, setTeamSize] = useState(4);
@@ -116,19 +119,15 @@ export function MatchmakingScreen() {
   const invite = (userId: number) =>
     setInvitedIds(prev => new Set([...prev, userId]));
 
+  const themeConfig = {
+    ocean: { icon: '🌊', label: 'Ocean Pirate Network', color: 'text-cyan-400' },
+    space: { icon: '🚀', label: 'Galactic Learning Grid', color: 'text-purple-400' },
+    future: { icon: '⚡', label: 'Neural Study Network', color: 'text-emerald-400' },
+  }[theme] ?? { icon: '🌊', label: 'Study Network', color: 'text-primary' };
+
   return (
-    <div className="min-h-screen bg-background theme-future relative overflow-hidden">
-      {/* Cyber grid */}
-      <div className="absolute inset-0 cyber-grid opacity-40" />
-      <div className="absolute top-0 left-0 w-full h-full pointer-events-none">
-        {Array.from({ length: 8 }).map((_, i) => (
-          <div key={i} className="data-particle" style={{
-            left: `${10 + i * 12}%`,
-            animationDuration: `${4 + i * 1.2}s`,
-            animationDelay: `${i * 0.5}s`,
-          }} />
-        ))}
-      </div>
+    <div className="min-h-screen bg-background relative overflow-hidden">
+      <ThemeBackground />
 
       <div className="relative z-10 max-w-lg mx-auto px-4 py-6">
         {/* Header */}
@@ -142,7 +141,9 @@ export function MatchmakingScreen() {
               <Radar className="text-primary" size={22} />
               Matchmaking
             </h1>
-            <p className="text-xs text-muted-foreground">AI-powered study partner finder</p>
+            <p className="text-xs text-muted-foreground">
+              <span className={themeConfig.color}>{themeConfig.icon}</span> {themeConfig.label}
+            </p>
           </div>
           <div className="flex items-center gap-1.5 bg-green-500/10 border border-green-500/20 rounded-full px-2.5 py-1 text-[10px] text-green-400 font-bold">
             <Wifi size={9} /> Online

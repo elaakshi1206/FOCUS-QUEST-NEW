@@ -117,6 +117,29 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     setIsHydrated(true);
   }, []);
 
+  // Sync to backend whenever critical progression stats change
+  useEffect(() => {
+    if (isHydrated && profile.userName) {
+      const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:3001/api";
+      fetch(`${apiUrl}/users/sync`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(profile),
+      }).catch((err) => {
+        console.error("Failed to sync profile to backend", err);
+      });
+    }
+  }, [
+    isHydrated,
+    profile.userName,
+    profile.xp,
+    profile.streak,
+    profile.completedQuests.length,
+    profile.focusHistory.length,
+    profile.grade,
+    profile.theme
+  ]);
+
   // Persist the current profile to the profiles map in localStorage
   const persist = (updater: (prev: UserProfile) => UserProfile) => {
     setProfileState(prev => {

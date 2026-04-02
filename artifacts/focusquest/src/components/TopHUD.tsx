@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useGame } from '@/lib/store';
 import { CHARACTERS } from '@/lib/data';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Flame, Star, Menu, X, ChartBar, Map, Settings, User, LogOut, Radar, Trophy, Shield } from 'lucide-react';
+import { Flame, Star, Menu, X, ChartBar, Map, Settings, User, LogOut, Radar, Trophy, Shield, Swords, Sparkles, BellRing } from 'lucide-react';
 import { Link, useLocation } from 'wouter';
 import { MascotLogo } from './MascotLogo';
 
@@ -10,6 +10,7 @@ export function TopHUD() {
   const { userName, level, xp, streak, avatarId, logout } = useGame();
   const [, setLocation] = useLocation();
   const [menuOpen, setMenuOpen] = useState(false);
+  const [showNotification, setShowNotification] = useState(true);
 
   const handleSwitchUser = () => {
     setMenuOpen(false);
@@ -81,6 +82,43 @@ export function TopHUD() {
         </div>
       </div>
 
+      {/* Notification Banner */}
+      <AnimatePresence>
+        {showNotification && (
+          <motion.div
+            initial={{ opacity: 0, y: -20, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -10, scale: 0.95 }}
+            className="max-w-2xl mx-auto mt-2 pointer-events-auto px-4"
+          >
+            <div className="bg-gradient-to-r from-primary/90 via-accent/90 to-primary/90 backdrop-blur-md rounded-2xl p-1 shadow-xl border border-white/20">
+              <div className="bg-background/80 backdrop-blur-sm rounded-xl p-3 flex items-center justify-between gap-4">
+                <div className="flex items-center gap-4">
+                  <div className="bg-primary/20 p-2.5 rounded-full relative">
+                    <div className="absolute inset-0 bg-primary/40 rounded-full animate-ping"></div>
+                    <BellRing className="w-5 h-5 text-primary relative z-10" />
+                  </div>
+                  <div className="flex flex-col">
+                    <span className="text-sm font-bold text-foreground flex items-center gap-1.5">
+                      <Sparkles className="w-4 h-4 text-yellow-500 fill-yellow-500" /> Daily Challenge is ready!
+                    </span>
+                    <span className="text-muted-foreground text-xs font-medium mt-0.5">
+                      Earn 2x XP today. Compete in the <Link href="/challenges" className="text-primary hover:underline font-bold transition-all hover:text-accent">Battle Arena</Link> now!
+                    </span>
+                  </div>
+                </div>
+                <button 
+                  onClick={() => setShowNotification(false)}
+                  className="text-muted-foreground hover:text-foreground hover:bg-muted p-1.5 rounded-full transition-colors shrink-0"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Dropdown Menu */}
       <AnimatePresence>
         {menuOpen && (
@@ -100,8 +138,10 @@ export function TopHUD() {
               {/* ── Antigravity Social Module ── */}
               <div className="mx-3 my-1 h-px bg-border/40" />
               <p className="px-3 py-1 text-[10px] font-bold text-primary/70 uppercase tracking-widest">⚡ Antigravity</p>
+              <MenuLink href="/daily-challenge" icon={<Sparkles />} label="Daily Solo Challenge" onClick={() => setMenuOpen(false)} />
               <MenuLink href="/team" icon={<Shield />} label="My Team" onClick={() => setMenuOpen(false)} />
               <MenuLink href="/matchmaking" icon={<Radar />} label="Find Study Squad" onClick={() => setMenuOpen(false)} />
+              <MenuLink href="/challenges" icon={<Swords />} label="Battle Arena" onClick={() => setMenuOpen(false)} />
               <MenuLink href="/leaderboard" icon={<Trophy />} label="Leaderboard" onClick={() => setMenuOpen(false)} />
               <div className="mx-3 my-1 h-px bg-border/40" />
               <MenuLink href="/setup" icon={<Settings />} label="Settings" onClick={() => setMenuOpen(false)} />
