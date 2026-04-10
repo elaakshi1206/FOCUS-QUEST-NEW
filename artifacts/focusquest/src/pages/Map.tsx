@@ -4,7 +4,32 @@ import { useGame } from '@/lib/store';
 import { SUBJECTS, TOPICS, QUESTS, Subject, Topic, getGradeTheme, THEME_MAP_CONFIG, getSubjectsForGrade } from '@/lib/data';
 import { AnimatedBackground } from '@/components/AnimatedBackground';
 import { TopHUD } from '@/components/TopHUD';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
+
+const API = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
+
+// ─── Session tracking helpers ─────────────────────────────────────────────
+async function startSession(userId: string): Promise<string | null> {
+  try {
+    const res = await fetch(`${API}/sessions/start`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ userId }),
+    });
+    const data = await res.json();
+    return res.ok ? String(data.sessionId) : null;
+  } catch { return null; }
+}
+
+async function endSession(sessionId: string, stats: {
+  focusMinutes: number; xpEarned: number; questsCompleted: string[]; topicsCovered: string[];
+}) {
+  try {
+    await fetch(`${API}/sessions/end`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ sessionId, ...stats }),
+    });
+  } catch { /* silent */ }
+}
 
 // ─────────────────────────────────────────────
 // Topic map positions per subject (random-ish spread)
@@ -412,6 +437,35 @@ export function Map() {
   const [showPanel, setShowPanel] = useState(true);
   const pathRef = useRef<SVGSVGElement>(null);
 
+  // ── Session tracking ──────────────────────────────────────────────────────
+  const sessionIdRef    = useRef<string | null>(null);
+  const sessionStartXp  = useRef<number>(xp);
+  const sessionStartQ   = useRef<string[]>([...completedQuests]);
+
+  useEffect(() => {
+    const userId = localStorage.getItem('focusquest_user_id');
+    if (!userId) return;
+
+    // Start session on mount
+    startSession(userId).then(id => { sessionIdRef.current = id; });
+    sessionStartXp.current = xp;
+    sessionStartQ.current  = [...completedQuests];
+
+    // End session on unmount
+    return () => {
+      if (!sessionIdRef.current) return;
+      const newQuests  = completedQuests.filter(q => !sessionStartQ.current.includes(q));
+      const xpGained   = Math.max(0, xp - sessionStartXp.current);
+      endSession(sessionIdRef.current, {
+        focusMinutes: Math.round((Date.now() - performance.now()) / 60000) || 1,
+        xpEarned: xpGained,
+        questsCompleted: newQuests,
+        topicsCovered: mapSubjectId ? [mapSubjectId] : [],
+      });
+    };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   // Auth guard: redirect to landing if not logged in
   useEffect(() => {
     if (isHydrated && !userName) {
@@ -582,6 +636,7 @@ export function Map() {
             >
               {[
                 { href: '/daily-challenge', emoji: '🌟', label: 'Daily' },
+                { href: '/schedule', emoji: '📅', label: 'Schedule' },
                 { href: '/team', emoji: '🛡️', label: 'Team' },
                 { href: '/matchmaking', emoji: '🎯', label: 'Match' },
                 { href: '/leaderboard', emoji: '🏆', label: 'Ranks' },

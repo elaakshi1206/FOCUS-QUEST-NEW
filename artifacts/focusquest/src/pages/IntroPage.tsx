@@ -8,6 +8,10 @@ export function IntroPage() {
     setLocation('/login');
   };
 
+  const handleCreateAccount = () => {
+    setLocation('/signup');
+  };
+
   return (
     <div
       style={{
@@ -68,7 +72,6 @@ export function IntroPage() {
             />
           </motion.div>
 
-
           
           <motion.p
             initial={{ y: 25, opacity: 0 }}
@@ -90,14 +93,15 @@ export function IntroPage() {
             initial={{ y: 25, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             transition={{ delay: 0.4, type: 'spring' }}
-            style={{ display: 'flex', flexDirection: 'column', gap: 16, width: '100%', maxWidth: 360 }}
+            style={{ display: 'flex', flexDirection: 'column', gap: 12, width: '100%', maxWidth: 360 }}
           >
+            {/* ── Primary: Create Account (new full signup) ── */}
             <motion.button
               whileHover={{ scale: 1.02 }}
-              whileTap={{ y: 4, scale: 0.98, boxShadow: '0 2px 10px rgba(52, 211, 153, 0.4), inset 0 -1px 0 rgba(0,0,0,0.1)' }}
-              onClick={handleBegin}
+              whileTap={{ y: 4, scale: 0.98, boxShadow: '0 2px 10px rgba(99,102,241,0.4), inset 0 -1px 0 rgba(0,0,0,0.1)' }}
+              onClick={handleCreateAccount}
               style={{
-                background: 'linear-gradient(135deg, #34d399, #10b981)',
+                background: 'linear-gradient(135deg, #6366f1, #8b5cf6)',
                 color: 'white',
                 border: 'none',
                 borderRadius: 24,
@@ -105,14 +109,37 @@ export function IntroPage() {
                 fontSize: '1.2rem',
                 fontWeight: 700,
                 cursor: 'pointer',
-                boxShadow: '0 8px 15px rgba(52, 211, 153, 0.3), inset 0 -5px 0 rgba(0,0,0,0.15)',
+                boxShadow: '0 8px 15px rgba(99,102,241,0.35), inset 0 -5px 0 rgba(0,0,0,0.15)',
                 transition: 'background 0.3s, box-shadow 0.1s',
                 fontFamily: "'Fredoka', sans-serif",
                 letterSpacing: '0.05em',
                 textTransform: 'uppercase'
               }}
             >
-              Let's Begin
+              ✨ Start Learning Free
+            </motion.button>
+
+            {/* ── Secondary: Let's Begin (existing name-only flow) ── */}
+            <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ y: 2, scale: 0.98 }}
+              onClick={handleBegin}
+              style={{
+                background: 'rgba(255,255,255,0.85)',
+                color: '#475569',
+                border: '2px solid rgba(255,255,255,0.9)',
+                borderRadius: 24,
+                padding: '14px 32px',
+                fontSize: '1rem',
+                fontWeight: 600,
+                cursor: 'pointer',
+                boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
+                transition: 'all 0.2s',
+                fontFamily: "'Fredoka', sans-serif",
+                letterSpacing: '0.03em',
+              }}
+            >
+              Already have an account? Sign in
             </motion.button>
           </motion.div>
         </motion.div>
@@ -120,3 +147,4 @@ export function IntroPage() {
     </div>
   );
 }
+

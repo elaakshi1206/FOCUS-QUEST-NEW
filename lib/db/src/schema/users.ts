@@ -14,6 +14,12 @@ export const users = pgTable("users", {
   currentStreak: integer("current_streak").default(0).notNull(),
   improvementRate: integer("improvement_rate").default(0).notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
+  // ── New fields added for full account creation flow ──
+  fullName: text("full_name"),                 // Student's real full name
+  age: integer("age"),                         // Student age (8-18)
+  phone: text("phone"),                        // Student phone (optional)
+  avatarUrl: text("avatar_url"),               // Chosen avatar emoji/key
+  parentId: integer("parent_id"),              // FK → parents.id (set after signup)
 });
 
 export const insertUserSchema = createInsertSchema(users).omit({ id: true, createdAt: true });

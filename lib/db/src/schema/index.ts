@@ -3,3 +3,8 @@ export * from "./teams";
 export * from "./quests";
 export * from "./challenges";
 export * from "./daily_challenges";
+export * from "./parents";
+export * from "./weekly_schedule";
+export * from "./daily_timetable";
+export * from "./session_logs";
+export * from "./daily_activity_reports";

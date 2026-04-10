@@ -11,8 +11,10 @@ import NotFound from "@/pages/not-found";
 import { IntroPage } from "@/pages/IntroPage";
 import { Landing } from "@/pages/Landing";
 import { LoginPage } from "@/pages/LoginPage";
+import { Signup } from "@/pages/Signup";
 import { Setup } from "@/pages/Setup";
 import { TimetableBuilder } from "@/pages/TimetableBuilder";
+import { ScheduleDashboard } from "@/pages/ScheduleDashboard";
 import { Map } from "@/pages/Map";
 import { QuestList } from "@/pages/QuestList";
 import { QuestView } from "@/pages/QuestView";
@@ -26,6 +28,7 @@ import { MatchmakingScreen } from "@/pages/MatchmakingScreen";
 import { ChallengesScreen } from "@/pages/ChallengesScreen";
 import { ActiveChallengeRoom } from "@/pages/ActiveChallengeRoom";
 import { DailyChallengePage } from "@/pages/DailyChallengePage";
+import { ParentReportView } from "@/pages/ParentReportView";
 
 const queryClient = new QueryClient();
 
@@ -34,9 +37,11 @@ function Router() {
     <Switch>
       <Route path="/" component={IntroPage} />
       <Route path="/login" component={LoginPage} />
+      <Route path="/signup" component={Signup} />
       <Route path="/landing" component={Landing} />
       <Route path="/setup" component={Setup} />
       <Route path="/timetable" component={TimetableBuilder} />
+      <Route path="/schedule" component={ScheduleDashboard} />
       <Route path="/map" component={Map} />
       <Route path="/quests/:subjectId" component={QuestList} />
       <Route path="/quest/:subjectId/:questId" component={QuestView} />
@@ -50,6 +55,8 @@ function Router() {
       <Route path="/challenges" component={ChallengesScreen} />
       <Route path="/challenge/:challengeId" component={ActiveChallengeRoom} />
       <Route path="/daily-challenge" component={DailyChallengePage} />
+      {/* Parent-facing routes (no login required) */}
+      <Route path="/parent-report/:token" component={ParentReportView} />
       <Route component={NotFound} />
     </Switch>
   );
@@ -76,3 +83,4 @@ function App() {
 }
 
 export default App;
+
