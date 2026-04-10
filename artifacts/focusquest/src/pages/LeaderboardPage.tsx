@@ -5,6 +5,7 @@ import { Trophy, Users, ChevronLeft, RefreshCw, Info } from "lucide-react";
 import { LeaderboardTable, type LeaderboardUser, type LeaderboardTeamEntry } from "@/components/multiplayer/LeaderboardTable";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useGame } from "@/lib/store";
+import { ThemeBackground } from "@/components/ThemeBackground";
 
 // Backend data is fetched natively
 
@@ -42,8 +43,14 @@ export function LeaderboardPage() {
   const [view, setView] = useState<View>("users");
   const [period, setPeriod] = useState<Period>("weekly");
   const [showInfo, setShowInfo] = useState(false);
-  const { userName } = useGame();
+  const { userName, theme } = useGame();
   const queryClient = useQueryClient();
+
+  const themeConfig = {
+    ocean: { icon: '🌊', title: 'Hall of Pirates', subtitle: 'Top buccaneers & fleets' },
+    space: { icon: '🌟', title: 'Galactic Rankings', subtitle: 'Top explorers & squadrons' },
+    future: { icon: '🧠', title: 'Neural Leaderboard', subtitle: 'Top agents & labs' },
+  }[theme] ?? { icon: '🏆', title: 'Leaderboard', subtitle: 'Top learners & teams' };
 
   const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:3001/api";
 
@@ -74,16 +81,8 @@ export function LeaderboardPage() {
   };
 
   return (
-    <div className="min-h-screen bg-background theme-space relative overflow-hidden">
-      {/* Cosmic background */}
-      {Array.from({ length: 25 }).map((_, i) => (
-        <div key={i} className="star" style={{
-          width: Math.random() * 2 + 1, height: Math.random() * 2 + 1,
-          top: `${Math.random() * 100}%`, left: `${Math.random() * 100}%`,
-          animationDuration: `${2 + Math.random() * 4}s`, animationDelay: `${Math.random() * 3}s`,
-        }} />
-      ))}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-96 h-48 bg-secondary/10 rounded-full blur-3xl pointer-events-none" />
+    <div className="min-h-screen bg-background relative overflow-hidden">
+      <ThemeBackground />
 
       <div className="relative z-10 max-w-lg mx-auto px-4 py-6">
         {/* Header */}
@@ -94,9 +93,9 @@ export function LeaderboardPage() {
           </button>
           <div className="flex-1">
             <h1 className="font-display text-2xl font-bold text-foreground flex items-center gap-2">
-              <Trophy className="text-secondary" size={22} /> Leaderboard
+              <Trophy className="text-secondary" size={22} /> {themeConfig.icon} {themeConfig.title}
             </h1>
-            <p className="text-xs text-muted-foreground">Top learners & teams</p>
+            <p className="text-xs text-muted-foreground">{themeConfig.subtitle}</p>
           </div>
           <div className="flex gap-2 items-center">
             <button onClick={handleRefresh}
